@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRÍAS CADAVID · Módulo 02 · Gestión de Casos Penales con Módulo Probatorio</title>
+<link rel="stylesheet" href="css/modulo02.css">
+<link rel="stylesheet" href="css/casos-penales.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="sb-search" id="icon-slot-search"></div>
+    <ul class="sb-nav">
+      <li class="nav-item" data-view="modulos" id="icon-slot-modulos"></li>
+    </ul>
+    <ul class="sb-nav sb-subnav" id="sbSubnav">
+      <li class="nav-item" data-view="casos" id="icon-slot-casos"></li>
+    </ul>
+    <ul class="sb-nav">
+      <li class="nav-item active" data-view="agentes" id="icon-slot-agentes"></li>
+      <li class="nav-item" data-view="ejecutiva" id="icon-slot-ejecutiva"></li>
+    </ul>
+    <div class="sb-footer">
+      <div class="sb-appearance"><span>Apariencia</span><span>☀ / ☾</span></div>
+      <ul class="sb-nav">
+        <li class="nav-item" data-view="config" id="icon-slot-config"></li>
+      </ul>
+      <button class="sb-back" id="btnSalir"></button>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <!-- ================= TOPBAR ================= -->
+    <header class="topbar">
+      <div class="tb-left">
+        <a class="brand" href="../index.html" title="Volver a la plataforma">Prías Cadavid</a>
+      </div>
+      <div class="tb-right">
+        <div class="case-chip" id="topCaseChip"></div>
+        <button class="tb-icon-btn" id="icon-slot-tbsearch"></button>
+        <button class="tb-icon-btn cp-bell" id="icon-slot-tbbell"></button>
+        <button class="role-switch" id="roleSwitchBtn">
+          <div class="avatar" id="roleAvatar"></div>
+          <div class="rs-label"><b id="roleLabelName"></b><span>Cambiar rol</span></div>
+          <span id="icon-slot-rschev"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- role dropdown -->
+    <div class="role-menu" id="roleMenu">
+      <div class="rm-title">Seleccionar rol</div>
+      <div id="roleMenuList"></div>
+    </div>
+
+    <main class="content">
+
+      <!-- ================= MIGA DE PAN ================= -->
+      <nav class="breadcrumb hidden" id="breadcrumbBar"></nav>
+
+      <!-- ================= MÓDULOS VIEW ================= -->
+      <section id="view-modulos" class="view">
+        <div class="section-head">
+          <div><h2>Módulos</h2><p>Selecciona un módulo para entrar. Por ahora solo el Módulo 02 · Gestión de Casos Penales está disponible.</p></div>
+        </div>
+        <div class="modulos-grid" id="modulosGrid"></div>
+      </section>
+
+      <!-- ================= AGENTES VIEW ================= -->
+      <!-- El mismo cuadro superior (promptbox) es el Chat AI principal: cuando se activa un
+           agente, este cuadro se convierte en su chat (historial + sugerencias + entrada),
+           en vez de abrir un chat nuevo, un modal o un panel aparte. -->
+      <section id="view-agentes" class="view active">
+        <div style="text-align:center;">
+          <button class="btn sm subtle" id="heroBackBtn" style="display:none;margin-bottom:10px;">← Volver a agentes</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+          <div class="agent-avatar" id="heroAgentAvatar" style="display:none;"></div>
+          <h1 class="hero-title" id="agHeroTitle" style="margin:0 0 6px;">Agentes de IA disponibles</h1>
+        </div>
+        <p class="hero-sub" id="agHeroSub">Módulo 02 · Sistema de Gestión de Casos Penales con Módulo Probatorio.</p>
+        <div class="chat-context" id="chatContextLine" style="display:none;max-width:820px;margin:0 auto 14px;"></div>
+
+        <div class="promptbox" id="promptCard">
+          <div class="chat-thread" id="chatThread" style="display:none;"></div>
+          <div class="chat-input-wrap" id="chatInputWrap">
+            <textarea id="promptInput" placeholder="Escribe tu pregunta y se enviará al agente principal de tu rol..."></textarea>
+            <div class="promptbox-row">
+              <div class="promptbox-tools">
+                <div class="icon-sq" id="icon-slot-paperclip"></div>
+                <div class="icon-sq" id="icon-slot-link"></div>
+                <div class="icon-sq" id="icon-slot-wand"></div>
+              </div>
+              <button class="send-btn" id="promptSendBtn"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="role-pills" id="suggestionPillsHolder"></div>
+
+        <!-- Se oculta por completo mientras hay un agente activo en el Chat AI: solo queda el chat -->
+        <div id="agentsListSection">
+          <div class="section-divider"></div>
+
+          <div class="section-head">
+            <div>
+              <h2 id="agSectionTitle">Agentes para tu rol</h2>
+              <p>Cada rol accede únicamente a los agentes de IA que corresponden a sus responsabilidades.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn" data-view-btn="casos">Ver casos activos</button>
+            </div>
+          </div>
+
+          <div class="agent-grid" id="agentGrid"></div>
+        </div>
+      </section>
+
+      <!-- ================= CASOS VIEW ================= -->
+      <section id="view-casos" class="view">
+
+        <!-- VISTA 01 · Dashboard de casos (lista / kanban) -->
+        <div id="casosListWrap">
+          <div class="section-head">
+            <div>
+              <h2>Casos Penales</h2>
+              <p>Selecciona un caso para abrir su información, flujo entre roles y matriz probatoria.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="cpBtnNuevo">+ Nuevo caso</button>
+              <button class="btn" id="cpBtnExport">Exportar</button>
+              <div class="seg" id="cpViewMode">
+                <button data-mode="lista" class="on">Lista</button>
+                <button data-mode="kanban">Kanban</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-grid" id="cpKpis"></div>
+
+          <div class="cp-toolbar">
+            <div class="cp-search" id="cpSearchBox">
+              <span id="icon-slot-cpsearch"></span>
+              <input id="cpSearch" placeholder="Buscar por código, cliente, título, etapa o responsable...">
+            </div>
+            <button class="btn" id="cpBtnFiltros">Filtros <span class="cp-count" id="cpFiltrosCount"></span></button>
+            <button class="btn subtle" id="cpBtnLimpiar">Limpiar</button>
+          </div>
+          <div class="cp-filters" id="cpFilters" style="display:none;"></div>
+
+          <div class="matriz-wrap table-scroll" id="cpListMode">
+            <table class="matriz" id="casosTable" style="min-width:1240px;">
+              <thead>
+                <tr>
+                  <th>Caso</th><th>Nombre / Tipo</th><th>Etapa</th><th>Estado</th><th>Responsable</th><th>Riesgo</th>
+                  <th>Fecha apertura</th><th>Última actividad</th><th>Progreso</th><th>Evidencias</th><th>Próximo vencimiento</th>
+                </tr>
+              </thead>
+              <tbody id="casosBody"></tbody>
+            </table>
+          </div>
+          <div class="kanban" id="cpKanban" style="display:none;"></div>
+        </div>
+
+        <!-- Vista restringida para Cliente externo -->
+        <div id="clientePortalWrap" style="display:none;"></div>
+
+        <!-- VISTA 03 · Detalle del caso -->
+        <div id="casoDetailWrap" style="display:none;">
+          <div class="section-head">
+            <div>
+              <p class="cp-eyebrow">Caso penal</p>
+              <h2 id="cdTitle">Caso</h2>
+              <p id="cdSub"></p>
+            </div>
+            <div class="section-actions">
+              <button class="btn" id="btnBackCasos">← Todos los casos</button>
+              <button class="btn" id="cpBtnEditar">Editar caso</button>
+              <button class="btn primary" id="btnAddEvidencia">+ Agregar evidencia</button>
+            </div>
+          </div>
+
+          <div id="cpCaseMeta"></div>
+          <div class="tabs" id="cpTabs"></div>
+
+          <!-- RESUMEN (incluye el flujo del caso entre roles existente) -->
+          <div class="tab-panel" data-panel="resumen">
+            <div id="cpResumen"></div>
+            <div class="section-divider"></div>
+            <div class="section-head">
+              <div><h2>Flujo del caso entre roles</h2><p>Recorrido del caso: Director → Abogado → Cliente → Administrativo → Socio.</p></div>
+            </div>
+            <div class="stepper" id="stepperHolder"></div>
+            <p style="text-align:center;color:var(--text-faint);font-size:12px;margin:0 0 32px;" id="cdFlowNote"></p>
+            <div class="flow-list" id="flowList"></div>
+          </div>
+
+          <div class="tab-panel" data-panel="expediente" id="cpExpediente"></div>
+          <div class="tab-panel" data-panel="documentos" id="cpDocumentos"></div>
+
+          <!-- EVIDENCIAS (matriz probatoria existente) -->
+          <div class="tab-panel" data-panel="evidencias">
+            <div id="cpEvidHead"></div>
+            <div class="section-head">
+              <div><h2>Matriz Probatoria</h2><p>Evidencia y documentos asociados a los hechos investigados de este caso. Haz clic en una fila para ver su ficha y trazabilidad.</p></div>
+            </div>
+            <div class="matriz-wrap table-scroll">
+              <div class="matriz-toolbar">
+                <span class="mt-info" id="matrizCount">0 elementos registrados</span>
+                <span class="mt-info">Hechos: H1 Ejecución del contrato · H2 Manejo de recursos · H3 Conocimiento directivo · H4 Estructura societaria</span>
+              </div>
+              <table class="matriz" style="min-width:1100px;">
+                <thead>
+                  <tr>
+                    <th>Evidencia / Documento</th><th>Tipo de prueba</th><th>Hecho que pretende demostrar</th>
+                    <th>Hecho</th><th>Fuente / Origen</th><th>Estado</th><th>Relevancia</th><th>Responsable</th><th>Observaciones</th>
+                  </tr>
+                </thead>
+                <tbody id="matrizBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-panel" data-panel="actuaciones" id="cpActuaciones"></div>
+          <div class="tab-panel" data-panel="tareas" id="cpTareas"></div>
+          <div class="tab-panel" data-panel="ia" id="cpIA"></div>
+          <div class="tab-panel" data-panel="reportes" id="cpReportes"></div>
+          <div class="tab-panel" data-panel="auditoria" id="cpAuditoria"></div>
+        </div>
+      </section>
+
+      <!-- ================= NUEVO / EDITAR CASO ================= -->
+      <section id="view-casoform" class="view">
+        <div class="section-head">
+          <div>
+            <h2 id="cfTitle">Nuevo caso</h2>
+            <p id="cfSub">VISTA 02 · El expediente se crea al guardar</p>
+          </div>
+          <div class="section-actions" id="cfFoot"></div>
+        </div>
+        <div id="cfBody"></div>
+      </section>
+
+      <!-- ================= ALERTAS VIEW ================= -->
+      <section id="view-alertas" class="view">
+        <div class="section-head">
+          <div><h2>Alertas y vencimientos</h2><p>Vencimientos, documentos pendientes, tareas críticas y problemas probatorios de los casos que tu rol puede consultar.</p></div>
+        </div>
+        <div class="kpi-grid" id="alKpis"></div>
+        <div class="tabs" id="alTabs"></div>
+        <div id="alList"></div>
+      </section>
+
+      <!-- ================= VISTA EJECUTIVA ================= -->
+      <section id="view-ejecutiva" class="view">
+        <div class="section-head">
+          <div><h2>Vista ejecutiva</h2><p>Avance, riesgos, casos críticos, decisiones pendientes e indicadores del Módulo 02.</p></div>
+          <div class="section-actions"><button class="btn" id="exBtnExport">Exportar resumen</button></div>
+        </div>
+        <div id="exBody"></div>
+      </section>
+
+      <!-- ================= FAQ VIEW ================= -->
+      <section id="view-faq" class="view">
+        <div class="section-head">
+          <div><h2>Preguntas frecuentes</h2><p>Selecciona una pregunta para ver una respuesta demo.</p></div>
+        </div>
+        <div class="flow-list" id="faqList"></div>
+      </section>
+
+      <!-- ================= CONFIG VIEW ================= -->
+      <section id="view-config" class="view">
+        <div class="section-head">
+          <div><h2>Configuración</h2><p>Preferencias de la plataforma y del Chat AI (demo).</p></div>
+        </div>
+        <div class="role-grid" style="grid-template-columns:repeat(2,1fr);" id="configGrid"></div>
+      </section>
+
+      <!-- ================= AYUDA VIEW ================= -->
+      <section id="view-ayuda" class="view">
+        <div class="section-head">
+          <div><h2>Ayuda</h2><p>Guías rápidas para trabajar con el Módulo 02.</p></div>
+        </div>
+        <div class="agent-grid" id="ayudaGrid"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ================= AGENT DOC DRAWER ================= -->
+<div class="overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="agentDrawer">
+  <div class="drawer-head">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div class="role-icon" id="drawerIcon"></div>
+      <div>
+        <div style="font-size:16.5px;font-weight:700;" id="drawerName"></div>
+        <div style="font-size:12.3px;color:var(--accent);font-weight:600;" id="drawerSpec"></div>
+      </div>
+    </div>
+    <button class="drawer-close" id="drawerCloseBtn">✕</button>
+  </div>
+  <div class="drawer-body">
+    <h4>Qué es</h4><p id="docQueEs"></p>
+    <h4>Objetivo</h4><p id="docObjetivo"></p>
+    <h4>Responsabilidades</h4><ul id="docResponsabilidades"></ul>
+    <h4>Qué tareas realiza</h4><ul id="docTareas"></ul>
+    <h4>Con qué rol(es) trabaja</h4><div class="perm-row" id="docRoles"></div>
+    <h4>Qué información puede analizar</h4><ul id="docInfoAnaliza"></ul>
+    <h4>Qué información puede generar</h4><ul id="docInfoGenera"></ul>
+    <h4>Qué herramientas o datos utiliza</h4><div class="perm-row" id="docHerramientas"></div>
+    <h4>Qué puede sugerir</h4><ul id="docSugerir"></ul>
+    <h4>Qué requiere aprobación del usuario</h4><p id="docAprobacion"></p>
+    <h4>Cómo participa en el flujo del caso</h4><ul id="docFlujo"></ul>
+    <h4>Cuándo debe utilizarse</h4><ul id="docCuando"></ul>
+    <h4>Ejemplos de uso</h4><ul id="docEjemplos"></ul>
+    <h4>Relación con la Matriz Probatoria</h4><p id="docMatrizRel"></p>
+    <button class="btn primary" style="width:100%;justify-content:center;margin-top:20px;" id="drawerOpenChat">Usar agente</button>
+  </div>
+</aside>
+
+<!-- ================= PANEL LATERAL CASOS PENALES (ficha de evidencia, documento, reporte) ================= -->
+<div class="overlay" id="cpOverlay"></div>
+<aside class="drawer" id="cpDrawer">
+  <div class="drawer-head">
+    <div>
+      <div style="font-size:11.5px;color:var(--text-faint);font-weight:700;text-transform:uppercase;letter-spacing:.04em;" id="cpDrawerKicker"></div>
+      <div style="font-size:16.5px;font-weight:700;" id="cpDrawerTitle"></div>
+    </div>
+    <button class="drawer-close" id="cpDrawerClose">✕</button>
+  </div>
+  <div class="drawer-body" id="cpDrawerBody"></div>
+</aside>
+
+<!-- ================= MODAL GENÉRICO CASOS PENALES (crear caso, documentos, tareas, actuaciones...) ================= -->
+<div class="modal-overlay" id="cpModal">
+  <div class="modal" id="cpModalBox">
+    <div class="modal-head">
+      <div class="modal-head-l"><div><h3 id="cpModalTitle"></h3><span id="cpModalSub"></span></div></div>
+      <button class="drawer-close" id="cpModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="cpModalBody"></div>
+      <div class="modal-foot" id="cpModalFoot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MATRIZ ENTRY MODAL ================= -->
+<div class="modal-overlay" id="matrizModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <div class="modal-head-l"><h3>Agregar evidencia a la matriz probatoria</h3></div>
+      <button class="drawer-close" id="matrizCloseBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label>Evidencia / Documento</label><input id="fEvidencia" placeholder="Ej. Acta de visita técnica"></div>
+        <div class="form-field">
+          <label>Tipo de prueba</label>
+          <select id="fTipo">
+            <option>Documental</option><option>Documental financiera</option><option>Testimonial</option>
+            <option>Pericial</option><option>Documental digital</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Hecho relacionado</label>
+          <select id="fHecho">
+            <option value="H1">H1 · Ejecución del contrato</option>
+            <option value="H2">H2 · Manejo de recursos</option>
+            <option value="H3">H3 · Conocimiento directivo</option>
+            <option value="H4">H4 · Estructura societaria</option>
+          </select>
+        </div>
+        <div class="form-field full"><label>Hecho que pretende demostrar</label><textarea id="fPretende" placeholder="Describe qué busca acreditar esta evidencia"></textarea></div>
+        <div class="form-field"><label>Fuente / Origen</label><input id="fFuente" placeholder="Ej. Cliente"></div>
+        <div class="form-field"><label>Fecha de la evidencia</label><input type="date" id="fFecha"></div>
+        <div class="form-field">
+          <label>Estado</label>
+          <select id="fEstado"><option value="verificada">Verificada</option><option value="revision">En revisión</option><option value="pendiente">Pendiente de recaudo</option></select>
+        </div>
+        <div class="form-field">
+          <label>Relevancia</label>
+          <select id="fRelev"><option value="alta">Alta</option><option value="media">Media</option><option value="baja">Baja</option></select>
+        </div>
+        <div class="form-field">
+          <label>Responsable</label>
+          <select id="fResponsable"></select>
+        </div>
+        <div class="form-field">
+          <label>Sensibilidad</label>
+          <select id="fSensibilidad"><option>Interna</option><option>Confidencial</option><option>Reservada</option></select>
+        </div>
+        <div class="form-field full">
+          <label>Documento / archivo asociado</label>
+          <select id="fDocumento"></select>
+        </div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="fObs" placeholder="Notas adicionales"></textarea></div>
+      </div>
+      <div class="modal-foot" style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+        <button class="btn" id="matrizCancelBtn">Cancelar</button>
+        <button class="btn primary" id="matrizSaveBtn">Guardar y vincular al caso</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/modulo02.js"></script>
+<script src="js/casos-data.js"></script>
+<script src="js/casos-penales.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

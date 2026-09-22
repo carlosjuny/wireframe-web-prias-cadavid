@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRÍAS CADAVID · LegalTech</title>
+<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Prías Cadavid</div>
+</header>
+
+<main class="content">
+
+  <!-- Login -->
+  <section id="stepLogin" class="step active">
+    <div class="hero">
+      <p class="eyebrow">Ingreso</p>
+      <h1>Ingresa a la plataforma</h1>
+      <p class="sub">Selecciona tu perfil de demostración. En producción el ingreso se realiza con las credenciales corporativas de la firma.</p>
+    </div>
+    <div class="profile-grid" id="profileGrid"></div>
+  </section>
+
+  <!-- Autorización -->
+  <section id="stepAuth" class="step">
+    <div class="hero">
+      <p class="eyebrow">Autorización</p>
+      <h1 id="authTitle">Verificando permisos</h1>
+      <p class="sub">El sistema determina rol, permisos, cliente, equipo, sensibilidad y casos disponibles.</p>
+    </div>
+    <div class="card auth-card"><div class="proc" id="authProc"></div></div>
+  </section>
+
+</main>
+
+<script src="js/index.js"></script>
+</body>
+</html>

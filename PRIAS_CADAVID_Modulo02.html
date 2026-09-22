@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRÍAS CADAVID · Módulo 02 · Gestión de Casos Penales con Módulo Probatorio</title>
+<style>
+:root{
+  --bg:#f2f2f0;
+  --sidebar-bg:#fafaf9;
+  --card-bg:#ffffff;
+  --border:#e6e6e3;
+  --border-strong:#d9d9d6;
+  --text:#1b1b19;
+  --text-muted:#6f6f6a;
+  --text-faint:#9a9a95;
+  --accent:#2f5fe0;
+  --accent-soft:#eef2fe;
+  --navy:#12131a;
+  --danger:#c8442d;
+  --danger-soft:#fbeae7;
+  --warn:#a8720f;
+  --warn-soft:#fbf1de;
+  --ok:#1f7a4d;
+  --ok-soft:#e8f6ee;
+  --radius-lg:16px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow-sm:0 1px 2px rgba(20,20,18,.05);
+  --shadow-md:0 8px 24px rgba(20,20,18,.10);
+  font-size:15px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-width:1180px;
+}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+svg{display:block;}
+.icon{width:17px;height:17px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+
+/* ---------- layout ---------- */
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:246px;flex-shrink:0;background:var(--sidebar-bg);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:16px 12px;
+  position:sticky;top:0;height:100vh;
+}
+.main-col{flex:1;display:flex;flex-direction:column;min-width:0;}
+
+/* ---------- sidebar ---------- */
+.sb-search{
+  display:flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 10px;color:var(--text-faint);font-size:13.5px;margin-bottom:14px;
+}
+.sb-nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;}
+.sb-nav li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);
+  color:var(--text-muted);font-size:13.8px;font-weight:500;}
+.sb-nav li:hover{background:#f0f0ee;cursor:pointer;color:var(--text);}
+.sb-nav li.active{background:var(--accent-soft);color:var(--accent);}
+.sb-divider{height:1px;background:var(--border);margin:12px 4px;}
+.sb-footer{margin-top:auto;display:flex;flex-direction:column;gap:10px;}
+.sb-channels{display:flex;align-items:center;gap:8px;padding:4px 6px;}
+.sb-chip{width:26px;height:26px;border-radius:50%;background:#ececea;display:flex;align-items:center;justify-content:center;color:var(--text-muted);}
+.sb-appearance{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;font-size:12.5px;color:var(--text-faint);}
+
+/* ---------- topbar ---------- */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;border-bottom:1px solid var(--border);background:var(--bg);
+  position:relative;z-index:30;
+}
+.tb-left{display:flex;align-items:center;gap:26px;}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;}
+.brand-mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2f5fe0,#7aa2ff);flex-shrink:0;}
+.tb-menu{display:flex;align-items:center;gap:20px;}
+.tb-menu-item{display:flex;align-items:center;gap:4px;font-size:13.8px;color:var(--text-muted);font-weight:500;}
+.tb-right{display:flex;align-items:center;gap:14px;}
+.tb-icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid transparent;display:flex;align-items:center;justify-content:center;color:var(--text-muted);background:none;}
+.tb-icon-btn:hover{background:#eeeeec;}
+.avatar{width:30px;height:30px;border-radius:50%;background:#2b2b2b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;}
+.case-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px 5px 10px;font-size:12.3px;color:var(--text-muted);}
+.case-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
+.case-chip b{color:var(--text);font-weight:600;}
+.role-switch{display:flex;align-items:center;gap:9px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:4px 12px 4px 4px;}
+.role-switch:hover{border-color:var(--border-strong);}
+.role-switch .rs-label{font-size:12.3px;line-height:1.2;text-align:left;}
+.role-switch .rs-label b{display:block;font-size:12.8px;color:var(--text);}
+.role-switch .rs-label span{color:var(--text-faint);font-size:10.8px;}
+
+/* role dropdown menu */
+.role-menu{position:absolute;top:60px;right:28px;width:250px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);padding:8px;display:none;z-index:70;}
+.role-menu.open{display:block;}
+.role-menu .rm-title{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);font-weight:700;padding:8px 10px 4px;}
+.role-menu button{width:100%;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);border:none;background:none;text-align:left;font-size:13.4px;color:var(--text);}
+.role-menu button:hover{background:#f2f2f0;}
+.role-menu button.active{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+.role-menu .rm-av{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.role-menu button.active .rm-av{background:var(--accent);}
+.role-menu .rm-desc{font-size:11px;color:var(--text-faint);font-weight:400;}
+.role-menu .rm-check{margin-left:auto;color:var(--accent);}
+
+/* ---------- content ---------- */
+.content{padding:34px 40px 60px;max-width:1180px;margin:0 auto;width:100%;}
+.view{display:none;}
+.view.active{display:block;}
+
+.hero-title{font-size:29px;font-weight:600;letter-spacing:-0.5px;margin:0 0 6px;text-align:center;}
+.hero-sub{text-align:center;color:var(--text-muted);font-size:14.5px;max-width:640px;margin:0 auto 26px;line-height:1.5;}
+
+/* prompt box */
+.promptbox{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-sm);padding:18px 20px 14px;max-width:820px;margin:0 auto;
+}
+.promptbox textarea{
+  width:100%;border:none;outline:none;resize:none;font-family:inherit;font-size:14.5px;
+  color:var(--text);height:44px;background:transparent;
+}
+.promptbox textarea::placeholder{color:var(--text-faint);}
+.promptbox-row{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.promptbox-tools{display:flex;align-items:center;gap:6px;}
+.tool-pill{display:flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12.5px;color:var(--text-muted);}
+.icon-sq{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-muted);}
+.send-btn{width:32px;height:32px;border-radius:50%;background:var(--navy);border:none;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.role-pills{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:900px;margin:18px auto 0;}
+.role-pill{
+  background:#fff;border:1px solid var(--border);border-radius:999px;padding:9px 16px;
+  font-size:13.3px;color:var(--text);font-weight:500;
+}
+.role-pill:hover{border-color:var(--accent);color:var(--accent);}
+
+/* section header w/ actions */
+.section-divider{height:1px;background:var(--border);margin:46px 0 30px;}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;}
+.section-head h2{font-size:20px;margin:0 0 4px;font-weight:600;}
+.section-head p{margin:0;color:var(--text-muted);font-size:13.5px;}
+.section-actions{display:flex;gap:10px;}
+.btn{font-size:13.3px;font-weight:600;border-radius:999px;padding:9px 16px;border:1px solid var(--border-strong);background:#fff;color:var(--text);display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{border-color:var(--text-faint);}
+.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff;}
+.btn.primary:hover{opacity:.92;}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn.subtle{background:transparent;border-color:transparent;color:var(--text-muted);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn.sm{padding:6px 12px;font-size:12.2px;}
+
+/* role grid (reused for agent grid) */
+.role-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;align-items:start;}
+.role-card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px 18px;display:flex;flex-direction:column;gap:10px;text-align:left;
+}
+.role-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md);}
+.role-card .r-top{display:flex;align-items:center;justify-content:space-between;}
+.role-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;}
+.role-count{font-size:11px;color:var(--text-faint);border:1px solid var(--border);border-radius:999px;padding:2px 8px;}
+.role-card h3{font-size:14.6px;margin:2px 0 0;font-weight:600;line-height:1.3;}
+.role-card p{font-size:12.6px;color:var(--text-muted);margin:0;line-height:1.45;}
+.role-card .r-tag{font-size:11.3px;color:var(--accent);font-weight:600;margin-top:-4px;}
+
+/* stepper */
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:10px;}
+.step{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;position:relative;}
+.step .sc{width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:var(--text-faint);z-index:1;}
+.step.done .sc{background:var(--ok);border-color:var(--ok);color:#fff;}
+.step.current .sc{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--accent-soft);}
+.step .sl{font-size:11.8px;color:var(--text-muted);text-align:center;max-width:120px;font-weight:600;}
+.step:not(:last-child)::after{content:"";position:absolute;top:17px;left:calc(50% + 22px);width:calc(100% - 44px);height:2px;background:var(--border-strong);}
+.step.done:not(:last-child)::after{background:var(--ok);}
+
+/* case flow */
+.flow-list{display:flex;flex-direction:column;gap:16px;}
+.flow-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;}
+.flow-item.current{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.fi-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.fi-role{display:flex;align-items:center;gap:12px;}
+.fi-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.fi-role h4{margin:0;font-size:15.5px;}
+.fi-role span{font-size:12px;color:var(--text-muted);}
+.badge{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;text-transform:uppercase;letter-spacing:.03em;}
+.badge.ok{background:var(--ok-soft);color:var(--ok);}
+.badge.now{background:var(--accent-soft);color:var(--accent);}
+.badge.pending{background:#f0f0ee;color:var(--text-faint);}
+.fi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+.fi-block h5{margin:0 0 4px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);font-weight:700;}
+.fi-block p{margin:0;font-size:13px;color:var(--text);line-height:1.5;}
+.fi-block ul{margin:0;padding-left:16px;font-size:13px;color:var(--text);line-height:1.5;}
+.fi-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(20,20,18,.35);opacity:0;pointer-events:none;transition:opacity .18s;z-index:40;}
+.overlay.show{opacity:1;pointer-events:auto;}
+.drawer{
+  position:fixed;top:0;right:-520px;width:500px;height:100vh;background:#fff;
+  border-left:1px solid var(--border);box-shadow:-8px 0 30px rgba(0,0,0,.12);
+  transition:right .22s ease;z-index:50;overflow-y:auto;
+}
+.drawer.open{right:0;}
+.drawer-head{padding:22px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;}
+.drawer-head .role-icon{width:44px;height:44px;border-radius:12px;}
+.drawer-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-muted);}
+.drawer-close:hover{background:#f2f2f0;}
+.drawer-body{padding:20px 24px 40px;}
+.drawer-body h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);font-weight:700;margin:22px 0 8px;}
+.drawer-body h4:first-child{margin-top:0;}
+.drawer-body p{font-size:13.4px;line-height:1.6;color:var(--text);margin:0;}
+.drawer-body ul{margin:0;padding-left:17px;font-size:13.4px;line-height:1.65;color:var(--text);}
+.perm-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.perm-tag{font-size:11.6px;background:#f5f5f3;border:1px solid var(--border);border-radius:999px;padding:4px 10px;color:var(--text-muted);}
+
+.agent-avatar{width:34px;height:34px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,20,18,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:30px;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:660px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-md);display:flex;flex-direction:column;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2;}
+.modal-head-l{display:flex;align-items:center;gap:10px;}
+.modal-head h3{margin:0;font-size:15.5px;}
+.modal-head span{font-size:11.8px;color:var(--text-muted);}
+.modal-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1;}
+
+.chat-context{background:#f7f7f5;border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;font-size:12.4px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;}
+.chat-context b{color:var(--text);}
+
+/* chat thread */
+.chat-thread{display:flex;flex-direction:column;gap:10px;padding:2px 2px 4px;margin-bottom:12px;}
+.chat-input-wrap{transition:none;}
+.chat-input-wrap.docked{
+  position:sticky;bottom:18px;z-index:5;background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:14px 18px 10px;margin-top:18px;
+}
+.chat-followups{border-top:1px solid var(--border);margin-top:6px;padding-top:14px;}
+.chat-followups .fu-label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);font-weight:700;margin:0 0 4px;}
+.followup-item{display:block;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--border);padding:12px 2px;font-size:13.3px;line-height:1.5;color:var(--text);cursor:pointer;font-family:inherit;}
+.followup-item:first-of-type{border-top:none;}
+.followup-item:hover{color:var(--accent);}
+.msg{max-width:84%;padding:10px 14px;border-radius:14px;font-size:13.2px;line-height:1.55;}
+.msg.user{align-self:flex-end;background:var(--navy);color:#fff;border-bottom-right-radius:4px;}
+.msg.agent{align-self:flex-start;background:#f5f5f3;border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
+.msg.agent b{display:block;font-size:10.8px;color:var(--accent);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
+.msg ul{margin:6px 0 0;padding-left:16px;}
+.msg .conf-tag{display:inline-block;margin-top:8px;font-size:10.6px;font-weight:700;background:#fff;border:1px solid var(--border);border-radius:999px;padding:2px 8px;color:var(--text-muted);}
+.typing-msg{display:flex;align-items:center;gap:6px;}
+.typing-dots{display:inline-flex;gap:3px;}
+.typing-dots span{width:5px;height:5px;border-radius:50%;background:var(--text-faint);animation:blink 1.1s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.chat-suggestions .role-pill{padding:7px 13px;font-size:12.3px;}
+.chat-input-row{display:flex;gap:8px;align-items:center;border-top:1px solid var(--border);padding-top:12px;margin-top:auto;}
+.chat-input-row input{flex:1;border:1px solid var(--border-strong);border-radius:999px;padding:10px 16px;font-size:13px;font-family:inherit;outline:none;}
+.chat-input-row input:focus{border-color:var(--accent);}
+
+.human-note{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text-muted);margin:2px 0 12px;background:#f7f7f5;border:1px dashed var(--border-strong);border-radius:var(--radius-sm);padding:10px 12px;}
+
+/* matriz */
+.matriz-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+table.matriz{width:100%;border-collapse:collapse;font-size:12.6px;}
+table.matriz th{text-align:left;background:#f7f7f5;color:var(--text-faint);font-size:10.8px;text-transform:uppercase;letter-spacing:.03em;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+table.matriz td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text);}
+table.matriz tr:last-child td{border-bottom:none;}
+table.matriz tr.clickable{cursor:pointer;}
+table.matriz tr.clickable:hover{background:#fbfbfa;}
+.pill-state{font-size:10.8px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap;}
+.pill-state.verificada{background:var(--ok-soft);color:var(--ok);}
+.pill-state.revision{background:var(--accent-soft);color:var(--accent);}
+.pill-state.pendiente{background:var(--warn-soft);color:var(--warn);}
+.pill-relev{font-size:10.8px;font-weight:700;border-radius:999px;padding:3px 9px;background:#f0f0ee;color:var(--text-muted);white-space:nowrap;}
+.pill-relev.alta{background:var(--danger-soft);color:var(--danger);}
+.hecho-tag{font-size:10.5px;background:#f0f0ee;border-radius:6px;padding:2px 6px;color:var(--text-muted);white-space:nowrap;}
+.matriz-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);background:#fbfbfa;}
+.matriz-toolbar .mt-info{font-size:12.6px;color:var(--text-muted);}
+.case-progress{display:flex;align-items:center;gap:8px;}
+.case-progress .bar{width:70px;height:6px;border-radius:999px;background:#ececea;overflow:hidden;}
+.case-progress .bar i{display:block;height:100%;background:var(--accent);}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;}
+.form-grid .full{grid-column:1/-1;}
+.form-field label{display:block;font-size:11.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px;}
+.form-field input,.form-field select,.form-field textarea{
+  width:100%;border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;
+}
+.form-field textarea{resize:vertical;min-height:56px;}
+
+/* faq accordion */
+.faq-item{cursor:pointer;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.faq-q h4{margin:0;font-size:14.2px;font-weight:600;}
+.faq-cat{font-size:10.5px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin:0 0 6px;}
+.faq-chev{color:var(--text-faint);transition:transform .15s;flex-shrink:0;}
+.faq-item.open .faq-chev{transform:rotate(180deg);}
+.faq-a{display:none;margin-top:12px;font-size:13.2px;color:var(--text-muted);line-height:1.6;border-top:1px solid var(--border);padding-top:12px;}
+.faq-item.open .faq-a{display:block;}
+
+/* settings */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);gap:16px;}
+.setting-row:last-child{border-bottom:none;}
+.setting-row .sr-label b{display:block;font-size:13.3px;font-weight:600;}
+.setting-row .sr-label span{font-size:11.8px;color:var(--text-muted);}
+.switch{width:38px;height:22px;border-radius:999px;background:#e2e2df;position:relative;flex-shrink:0;border:none;padding:0;}
+.switch .knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:var(--shadow-sm);}
+.switch.on{background:var(--accent);}
+.switch.on .knob{left:18px;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:all .25s;z-index:80;display:flex;align-items:center;gap:8px;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="sb-search" id="icon-slot-search"></div>
+    <ul class="sb-nav">
+      <li class="nav-item active" data-view="agentes" id="icon-slot-agentes"></li>
+      <li class="nav-item" data-view="casos" id="icon-slot-casos"></li>
+      <li class="nav-item" data-view="faq" id="icon-slot-faq"></li>
+      <li class="nav-item" data-view="config" id="icon-slot-config"></li>
+      <li class="nav-item" data-view="ayuda" id="icon-slot-ayuda"></li>
+    </ul>
+    <div class="sb-footer">
+      <div class="sb-channels">
+        <div class="sb-chip">JR</div>
+        <div class="sb-chip">MG</div>
+        <div class="sb-chip">+</div>
+      </div>
+      <div class="sb-appearance"><span>Apariencia</span><span>☀ / ☾</span></div>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <!-- ================= TOPBAR ================= -->
+    <header class="topbar">
+      <div class="tb-left">
+        <div class="brand"><span class="brand-mark"></span>Prías Cadavid <span style="color:var(--text-faint);font-weight:500;">· LegalTech</span></div>
+        <nav class="tb-menu">
+          <div class="tb-menu-item">Recursos <span id="icon-slot-chev1"></span></div>
+          <div class="tb-menu-item">Soporte <span id="icon-slot-chev2"></span></div>
+        </nav>
+      </div>
+      <div class="tb-right">
+        <div class="case-chip" id="topCaseChip"></div>
+        <button class="tb-icon-btn" id="icon-slot-tbsearch"></button>
+        <button class="tb-icon-btn" id="icon-slot-tbbell"></button>
+        <button class="role-switch" id="roleSwitchBtn">
+          <div class="avatar" id="roleAvatar"></div>
+          <div class="rs-label"><b id="roleLabelName"></b><span>Cambiar rol</span></div>
+          <span id="icon-slot-rschev"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- role dropdown -->
+    <div class="role-menu" id="roleMenu">
+      <div class="rm-title">Seleccionar rol</div>
+      <div id="roleMenuList"></div>
+    </div>
+
+    <main class="content">
+
+      <!-- ================= AGENTES VIEW ================= -->
+      <!-- El mismo cuadro superior (promptbox) es el Chat AI principal: cuando se activa un
+           agente, este cuadro se convierte en su chat (historial + sugerencias + entrada),
+           en vez de abrir un chat nuevo, un modal o un panel aparte. -->
+      <section id="view-agentes" class="view active">
+        <div style="text-align:center;">
+          <button class="btn sm subtle" id="heroBackBtn" style="display:none;margin-bottom:10px;">← Volver a agentes</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+          <div class="agent-avatar" id="heroAgentAvatar" style="display:none;"></div>
+          <h1 class="hero-title" id="agHeroTitle" style="margin:0 0 6px;">Agentes de IA disponibles</h1>
+        </div>
+        <p class="hero-sub" id="agHeroSub">Módulo 02 · Sistema de Gestión de Casos Penales con Módulo Probatorio.</p>
+        <div class="chat-context" id="chatContextLine" style="display:none;max-width:820px;margin:0 auto 14px;"></div>
+
+        <div class="promptbox" id="promptCard">
+          <div class="chat-thread" id="chatThread" style="display:none;"></div>
+          <div class="chat-input-wrap" id="chatInputWrap">
+            <textarea id="promptInput" placeholder="Escribe tu pregunta y se enviará al agente principal de tu rol..."></textarea>
+            <div class="promptbox-row">
+              <div class="promptbox-tools">
+                <div class="icon-sq" id="icon-slot-paperclip"></div>
+                <div class="icon-sq" id="icon-slot-link"></div>
+                <div class="icon-sq" id="icon-slot-wand"></div>
+              </div>
+              <button class="send-btn" id="promptSendBtn">${'' /* replaced by JS icon */}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="role-pills" id="suggestionPillsHolder"></div>
+
+        <!-- Se oculta por completo mientras hay un agente activo en el Chat AI: solo queda el chat -->
+        <div id="agentsListSection">
+          <div class="section-divider"></div>
+
+          <div class="section-head">
+            <div>
+              <h2 id="agSectionTitle">Agentes para tu rol</h2>
+              <p>Cada rol accede únicamente a los agentes de IA que corresponden a sus responsabilidades.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn" data-view-btn="casos">Ver casos activos</button>
+            </div>
+          </div>
+
+          <div class="agent-grid" id="agentGrid"></div>
+        </div>
+      </section>
+
+      <!-- ================= CASOS VIEW ================= -->
+      <section id="view-casos" class="view">
+        <div id="casosListWrap">
+          <div class="section-head">
+            <div>
+              <h2>Casos activos</h2>
+              <p>Selecciona un caso para abrir su información, flujo entre roles y matriz probatoria.</p>
+            </div>
+          </div>
+          <div class="matriz-wrap">
+            <table class="matriz" id="casosTable">
+              <thead>
+                <tr>
+                  <th>Caso</th><th>Nombre / Tipo</th><th>Estado</th><th>Responsable</th>
+                  <th>Fecha apertura</th><th>Última actividad</th><th>Progreso</th><th>Evidencias</th>
+                </tr>
+              </thead>
+              <tbody id="casosBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="casoDetailWrap" style="display:none;">
+          <div class="section-head">
+            <div>
+              <h2 id="cdTitle">Caso</h2>
+              <p id="cdSub"></p>
+            </div>
+            <div class="section-actions">
+              <button class="btn" id="btnBackCasos">← Todos los casos</button>
+              <button class="btn primary" id="btnAddEvidencia">+ Agregar evidencia</button>
+            </div>
+          </div>
+
+          <div class="stepper" id="stepperHolder"></div>
+          <p style="text-align:center;color:var(--text-faint);font-size:12px;margin:0 0 32px;" id="cdFlowNote"></p>
+
+          <div class="flow-list" id="flowList"></div>
+
+          <div class="section-divider"></div>
+          <div class="section-head">
+            <div><h2>Matriz Probatoria</h2><p>Evidencia y documentos asociados a los hechos investigados de este caso.</p></div>
+          </div>
+          <div class="matriz-wrap">
+            <div class="matriz-toolbar">
+              <span class="mt-info" id="matrizCount">0 elementos registrados</span>
+              <span class="mt-info">Hechos: H1 Ejecución del contrato · H2 Manejo de recursos · H3 Conocimiento directivo · H4 Estructura societaria</span>
+            </div>
+            <table class="matriz">
+              <thead>
+                <tr>
+                  <th>Evidencia / Documento</th><th>Tipo de prueba</th><th>Hecho que pretende demostrar</th>
+                  <th>Hecho</th><th>Fuente / Origen</th><th>Estado</th><th>Relevancia</th><th>Responsable</th><th>Observaciones</th>
+                </tr>
+              </thead>
+              <tbody id="matrizBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= FAQ VIEW ================= -->
+      <section id="view-faq" class="view">
+        <div class="section-head">
+          <div><h2>Preguntas frecuentes</h2><p>Selecciona una pregunta para ver una respuesta demo.</p></div>
+        </div>
+        <div class="flow-list" id="faqList"></div>
+      </section>
+
+      <!-- ================= CONFIG VIEW ================= -->
+      <section id="view-config" class="view">
+        <div class="section-head">
+          <div><h2>Configuración</h2><p>Preferencias de la plataforma y del Chat AI (demo).</p></div>
+        </div>
+        <div class="role-grid" style="grid-template-columns:repeat(2,1fr);" id="configGrid"></div>
+      </section>
+
+      <!-- ================= AYUDA VIEW ================= -->
+      <section id="view-ayuda" class="view">
+        <div class="section-head">
+          <div><h2>Ayuda</h2><p>Guías rápidas para trabajar con el Módulo 02.</p></div>
+        </div>
+        <div class="agent-grid" id="ayudaGrid"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ================= AGENT DOC DRAWER ================= -->
+<div class="overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="agentDrawer">
+  <div class="drawer-head">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div class="role-icon" id="drawerIcon"></div>
+      <div>
+        <div style="font-size:16.5px;font-weight:700;" id="drawerName"></div>
+        <div style="font-size:12.3px;color:var(--accent);font-weight:600;" id="drawerSpec"></div>
+      </div>
+    </div>
+    <button class="drawer-close" id="drawerCloseBtn">✕</button>
+  </div>
+  <div class="drawer-body">
+    <h4>Qué es</h4><p id="docQueEs"></p>
+    <h4>Objetivo</h4><p id="docObjetivo"></p>
+    <h4>Responsabilidades</h4><ul id="docResponsabilidades"></ul>
+    <h4>Qué tareas realiza</h4><ul id="docTareas"></ul>
+    <h4>Con qué rol(es) trabaja</h4><div class="perm-row" id="docRoles"></div>
+    <h4>Qué información puede analizar</h4><ul id="docInfoAnaliza"></ul>
+    <h4>Qué información puede generar</h4><ul id="docInfoGenera"></ul>
+    <h4>Qué herramientas o datos utiliza</h4><div class="perm-row" id="docHerramientas"></div>
+    <h4>Qué puede sugerir</h4><ul id="docSugerir"></ul>
+    <h4>Qué requiere aprobación del usuario</h4><p id="docAprobacion"></p>
+    <h4>Cómo participa en el flujo del caso</h4><ul id="docFlujo"></ul>
+    <h4>Cuándo debe utilizarse</h4><ul id="docCuando"></ul>
+    <h4>Ejemplos de uso</h4><ul id="docEjemplos"></ul>
+    <h4>Relación con la Matriz Probatoria</h4><p id="docMatrizRel"></p>
+    <button class="btn primary" style="width:100%;justify-content:center;margin-top:20px;" id="drawerOpenChat">Usar agente</button>
+  </div>
+</aside>
+
+<!-- ================= MATRIZ ENTRY MODAL ================= -->
+<div class="modal-overlay" id="matrizModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <div class="modal-head-l"><h3>Agregar evidencia a la matriz probatoria</h3></div>
+      <button class="drawer-close" id="matrizCloseBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label>Evidencia / Documento</label><input id="fEvidencia" placeholder="Ej. Acta de visita técnica"></div>
+        <div class="form-field">
+          <label>Tipo de prueba</label>
+          <select id="fTipo">
+            <option>Documental</option><option>Documental financiera</option><option>Testimonial</option>
+            <option>Pericial</option><option>Documental digital</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Hecho relacionado</label>
+          <select id="fHecho">
+            <option value="H1">H1 · Ejecución del contrato</option>
+            <option value="H2">H2 · Manejo de recursos</option>
+            <option value="H3">H3 · Conocimiento directivo</option>
+            <option value="H4">H4 · Estructura societaria</option>
+          </select>
+        </div>
+        <div class="form-field full"><label>Hecho que pretende demostrar</label><textarea id="fPretende" placeholder="Describe qué busca acreditar esta evidencia"></textarea></div>
+        <div class="form-field"><label>Fuente / Origen</label><input id="fFuente" placeholder="Ej. Cliente"></div>
+        <div class="form-field">
+          <label>Estado</label>
+          <select id="fEstado"><option value="verificada">Verificada</option><option value="revision">En revisión</option><option value="pendiente">Pendiente de recaudo</option></select>
+        </div>
+        <div class="form-field">
+          <label>Relevancia</label>
+          <select id="fRelev"><option value="alta">Alta</option><option value="media">Media</option><option value="baja">Baja</option></select>
+        </div>
+        <div class="form-field">
+          <label>Responsable</label>
+          <select id="fResponsable"></select>
+        </div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="fObs" placeholder="Notas adicionales"></textarea></div>
+      </div>
+      <div class="modal-foot" style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+        <button class="btn" id="matrizCancelBtn">Cancelar</button>
+        <button class="btn primary" id="matrizSaveBtn">Guardar y vincular al caso</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   ICONS
+   ============================================================ */
+const ICONS = {
+  search:'<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+  chip:'<svg class="icon" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>',
+  folder:'<svg class="icon" viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4l2 2.5H19a1.5 1.5 0 0 1 1.5 1.5V18A1.5 1.5 0 0 1 19 19.5H4.5A1.5 1.5 0 0 1 3 18z"/></svg>',
+  help:'<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.7 2.7 0 1 1 3.9 2.4c-.9.5-1.2 1-1.2 2"/><path d="M12 17h.01"/></svg>',
+  gear:'<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.5 7.5 0 0 0 0-3l1.8-1.4-2-3.4-2.1.7a7.4 7.4 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.4a7.4 7.4 0 0 0-2.6 1.5l-2.1-.7-2 3.4L4.6 10.5a7.5 7.5 0 0 0 0 3L2.8 14.9l2 3.4 2.1-.7a7.4 7.4 0 0 0 2.6 1.5l.5 2.4h4l.5-2.4a7.4 7.4 0 0 0 2.6-1.5l2.1.7 2-3.4z"/></svg>',
+  lifebuoy:'<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M6.3 6.3l3.3 3.3M18 6l-3.3 3.3M18 18l-3.3-3.3M6.3 18l3.3-3.3"/></svg>',
+  chevDown:'<svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M6 9l6 6 6-6"/></svg>',
+  bell:'<svg class="icon" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg>',
+  paperclip:'<svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M8 12.5l6.5-6.5a3 3 0 0 1 4.2 4.2L10 18.9a4.5 4.5 0 1 1-6.4-6.4L12.5 3.7"/></svg>',
+  link:'<svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M9.5 14.5l5-5"/><path d="M8.3 16.7 5.9 19a3 3 0 0 1-4.2-4.2l3.5-3.5a3 3 0 0 1 4.2 0"/><path d="M15.7 7.3 18 5a3 3 0 1 1 4.2 4.2l-3.5 3.5a3 3 0 0 1-4.2 0"/></svg>',
+  wand:'<svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M4 20l9-9"/><path d="M15.5 3.5l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/><path d="M19.5 12.5l.6 1.2 1.2.6-1.2.6-.6 1.2-.6-1.2-1.2-.6 1.2-.6z"/></svg>',
+  up:'<svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;"><path d="M12 19V6M6 11l6-6 6 6"/></svg>',
+  briefcase:'<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8 7.5V5.8A1.8 1.8 0 0 1 9.8 4h4.4A1.8 1.8 0 0 1 16 5.8V7.5"/><path d="M3 12.5h18"/></svg>',
+  scale:'<svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10"/><path d="M5 7h6M13 7h6"/><path d="M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg>',
+  eval:'<svg class="icon" viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/><path d="M10 8h4M10 12h4M10 16h2"/></svg>',
+  users:'<svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.5 14.6c2.6.3 4.6 2.2 5.1 5.4"/></svg>',
+  shield:'<svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  bot:'<svg class="icon" viewBox="0 0 24 24" style="stroke:#fff;"><rect x="4" y="8" width="16" height="11" rx="3"/><circle cx="9" cy="13.5" r="1.2" fill="#fff"/><circle cx="15" cy="13.5" r="1.2" fill="#fff"/><path d="M12 8V4M9 4h6"/></svg>',
+  check:'<svg class="icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>',
+  eye:'<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>',
+};
+function I(name){return ICONS[name]||'';}
+function setSlot(id, html){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
+
+/* ============================================================
+   DATA — extraído de Agentes_IA_por_Modulo_y_Rol.docx (Módulo 2)
+   y Documentacion_Modulos_Praias_Cadavid_Fase_1.docx (Módulo 2)
+   ============================================================ */
+const MODULE_DOC = {
+  objetivo:'Analizar la gestión del caso penal, el expediente, el módulo probatorio y las decisiones procesales para convertir la información del caso en acciones jurídicas verificables.',
+  responsabilidades:[
+    'Identificar información crítica, vacíos e inconsistencias propias del caso.',
+    'Consultar fuentes internas y jurídicas aplicables, explicando por qué cada fuente soporta o limita la recomendación.',
+    'Generar resultados estructurados para pantalla: resumen, hallazgos, riesgos, responsables, próximos pasos y trazabilidad.',
+    'Mantener memoria operativa del módulo con auditoría de documentos usados, decisiones sugeridas y validaciones humanas pendientes.'
+  ],
+  herramientas:['Búsqueda semántica','OCR','Repositorio jurídico','Calendario procesal','Motor de tareas','Plantillas','Auditoría'],
+  infoGenera:['Resumen ejecutivo y hallazgos','Alertas y ranking de prioridad','Documento / JSON de respuesta con fuentes citadas y nivel de confianza','Próximos pasos sugeridos'],
+  aprobacion:'La IA no puede cerrar, aprobar ni emitir conceptos definitivos sin revisión humana. Todo resultado debe ser revisado y aprobado por el rol correspondiente antes de incorporarse formalmente al expediente.'
+};
+
+const AGENTS = {
+  gestion:{
+    nombre:'Agente de Gestión de Casos Penales', especialidad:'Coordinación integral del expediente penal económico',
+    queEs:'Asistente de IA del Módulo 02 que apoya la coordinación del expediente y la construcción de la teoría del caso, bajo supervisión humana.',
+    tareas:['Analizar hechos, documentos y pruebas del expediente','Coordinar etapas, tareas y responsables del caso','Detectar bloqueos probatorios y proponer reasignaciones','Proponer teoría del caso, actuaciones y argumentos'],
+    infoTrabaja:['Documentos y metadatos del expediente','Estado del caso, responsables y fechas','Matriz probatoria y evidencias asociadas','Reglas y fuentes jurídicas aplicables'],
+  },
+  probatorio:{
+    nombre:'Agente Probatorio', especialidad:'Análisis y organización de evidencia probatoria',
+    queEs:'Asistente de IA del Módulo 02 especializado en clasificar, verificar y organizar la evidencia dentro de la matriz probatoria, bajo supervisión humana.',
+    tareas:['Clasificar y extraer datos de documentos y evidencias','Elaborar y actualizar el checklist probatorio','Detectar inconsistencias entre documentos','Presentar información autorizada en lenguaje claro cuando el usuario es un Cliente'],
+    infoTrabaja:['Documentos aportados y matriz probatoria','Evidencias, su estado y relevancia','Datos extraídos pendientes de validación'],
+  },
+  recomendacion:{
+    nombre:'Agente de Recomendación Procesal', especialidad:'Análisis estratégico y recomendación de rutas procesales',
+    queEs:'Asistente de IA del Módulo 02 orientado a la lectura ejecutiva del caso y a la recomendación de rutas procesales para decisiones de alto nivel, bajo supervisión humana.',
+    tareas:['Resumir el estado del caso a nivel ejecutivo','Comparar rutas procesales alternativas','Advertir riesgos estratégicos antes de una decisión','Preparar la recomendación procesal para aprobación'],
+    infoTrabaja:['Resumen consolidado del caso','Riesgos, decisiones pendientes y matriz probatoria','Recomendaciones previas del equipo jurídico'],
+  },
+};
+
+const SUGGESTIONS_BY_AGENT = {
+  gestion:[
+    {id:'analizar_caso', label:'Analizar el caso actual'},
+    {id:'estado_caso', label:'Revisar el estado del caso'},
+    {id:'info_faltante', label:'Identificar información faltante'},
+    {id:'preparar_siguiente', label:'Preparar información para el siguiente rol'},
+    {id:'resumir_docs', label:'Resumir documentos del expediente'},
+  ],
+  probatorio:[
+    {id:'revisar_evidencia', label:'Revisar la evidencia'},
+    {id:'analizar_matriz', label:'Analizar la Matriz Probatoria'},
+    {id:'info_faltante', label:'Identificar información faltante'},
+    {id:'resumir_docs', label:'Resumir documentos'},
+    {id:'estado_caso', label:'Revisar el estado del caso'},
+  ],
+  recomendacion:[
+    {id:'analizar_caso', label:'Analizar el caso actual'},
+    {id:'estado_caso', label:'Revisar el estado del caso'},
+    {id:'analizar_matriz', label:'Analizar la Matriz Probatoria'},
+    {id:'preparar_siguiente', label:'Preparar recomendación para aprobación'},
+  ],
+};
+
+/* sugerencias dinámicas: dependen de agente + rol + caso + etapa del caso */
+function getSuggestions(agentId, roleId, c){
+  const base = SUGGESTIONS_BY_AGENT[agentId].map(s=>({...s}));
+  const nxt = nextRoleId(roleId);
+  return base.map(s=>{
+    if(s.id==='preparar_siguiente'){
+      if(!nxt || (c && c.progreso>=100)) return {...s, label:'Revisar el cierre del caso'};
+      return {...s, label:`Preparar información para ${roleById(nxt).nombre}`};
+    }
+    if(s.id==='estado_caso' && c){
+      return {...s, label: c.progreso>=100 ? 'Revisar el estado del caso (cerrado)' : '¿Qué debería revisar a continuación?'};
+    }
+    return s;
+  });
+}
+
+/* 5 roles exclusivos (item 8 documento fuente) */
+const ROLES = [
+  {
+    id:'director', order:1, icon:'scale', code:'DI',
+    nombre:'Director', detalle:'Director jurídico / Coordinador de caso',
+    resumen:'Coordina el expediente, asigna responsables y controla el avance técnico del caso.',
+    participacion:'Coordinación jurídica y control técnico',
+    permisos:['Crear','Editar','Asignar','Revisar','Aprobar'],
+    recibe:'Recibe el requerimiento inicial del cliente remitido por la firma; es quien crea el caso en la plataforma.',
+    revisa:'Revisa la documentación de vinculación, el objeto del proceso penal económico y la disponibilidad de responsables.',
+    gestiona:'Gestiona la apertura del expediente, la asignación del Abogado y la definición de plazos.',
+    decisiones:'Decide quién asume el caso, la prioridad y cuándo escalar al Socio.',
+    resultado:'Genera el registro inicial del caso, con estado "en curso" y tareas asignadas.',
+    entrega:'Entrega el caso al Abogado para la ejecución operativa y el análisis jurídico.',
+    recibePosterior:'Recibe del Abogado el estado de avance, alertas y bloqueos probatorios para coordinar el caso.',
+    cuandoIA:'Consulta al Agente de Gestión de Casos Penales para tener visibilidad del estado por etapa y detectar bloqueos antes de reasignar tareas.',
+    agentes:[{id:'gestion', funcion:'Coordina expediente, etapas, tareas y evidencia; detecta bloqueos probatorios y recomienda qué debe revisarse o reasignarse.', comoAyuda:'Le da al Director visibilidad inmediata del estado del caso por etapa, sin revisar manualmente cada documento.'}]
+  },
+  {
+    id:'abogado', order:2, icon:'briefcase', code:'AB',
+    nombre:'Abogado', detalle:'Ejecución operativa, análisis jurídico y revisión probatoria',
+    resumen:'Ejecuta el análisis jurídico del caso y construye la teoría de defensa.',
+    participacion:'Ejecución operativa y análisis jurídico',
+    permisos:['Crear/editar asignados','Cargar documentos'],
+    recibe:'Recibe el caso asignado por el Director, con la documentación inicial de vinculación del cliente.',
+    revisa:'Revisa el contrato, los hechos denunciados, los documentos aportados y la matriz probatoria disponible.',
+    gestiona:'Gestiona la solicitud de documentos al Cliente y delega en el Administrativo la clasificación y cargue documental.',
+    decisiones:'Decide la línea de defensa preliminar y qué evidencia se solicita o descarta.',
+    resultado:'Genera el análisis del expediente con teoría preliminar del caso y actuaciones sugeridas.',
+    entrega:'Entrega la solicitud formal de documentos al Cliente y las tareas de organización documental al Administrativo.',
+    recibePosterior:'Recibe del Cliente los documentos aportados y del Administrativo la matriz probatoria actualizada.',
+    cuandoIA:'Usa el Agente de Gestión de Casos Penales para construir la teoría del caso y el Agente Probatorio para validar el estado de la evidencia.',
+    agentes:[
+      {id:'gestion', funcion:'Analiza hechos, documentos y pruebas del expediente para proponer teoría del caso, actuaciones, argumentos y documentos necesarios.', comoAyuda:'Ayuda al Abogado a construir la teoría del caso y a decidir qué actuaciones y documentos se necesitan.'},
+      {id:'probatorio', funcion:'Revisa el estado de la matriz probatoria consolidada por el Administrativo y señala inconsistencias antes de validar la evidencia.', comoAyuda:'Ayuda al Abogado a validar rápidamente si la evidencia recaudada respalda la teoría del caso.'}
+    ]
+  },
+  {
+    id:'cliente', order:3, icon:'users', code:'CL',
+    nombre:'Cliente', detalle:'Cliente autorizado',
+    resumen:'Consulta el avance del caso y aporta la documentación solicitada.',
+    participacion:'Consulta de avances autorizados',
+    permisos:['Lectura restringida','Descarga controlada'],
+    recibe:'Recibe del Abogado la solicitud formal de documentos (extractos bancarios, correos internos, certificaciones societarias).',
+    revisa:'Revisa únicamente los avances y solicitudes autorizadas visibles en el portal, sin acceso a la estrategia interna.',
+    gestiona:'Gestiona la recopilación y el cargue de los documentos solicitados dentro del portal seguro.',
+    decisiones:'Decide qué documentación adicional entregar y puede autorizar el contacto con terceros.',
+    resultado:'Genera el cargue de documentos autorizados y confirma solicitudes atendidas.',
+    entrega:'Entrega los documentos aportados al Abogado y al Administrativo para continuar el análisis.',
+    recibePosterior:'Recibe actualizaciones de avance autorizadas y mensajes seguros a través del portal.',
+    cuandoIA:'Usa el Agente Probatorio para conocer, en lenguaje claro, qué documentos ya se incorporaron y cuáles siguen pendientes.',
+    agentes:[{id:'probatorio', funcion:'Presenta únicamente la información autorizada del expediente probatorio en lenguaje claro, ocultando la estrategia interna del caso.', comoAyuda:'Le permite al Cliente saber, sin tecnicismos, qué avanzó y qué falta por entregar.'}]
+  },
+  {
+    id:'administrativo', order:4, icon:'eval', code:'AD',
+    nombre:'Administrativo', detalle:'Soporte documental y operativo',
+    resumen:'Organiza, clasifica y mantiene actualizada la matriz probatoria del caso.',
+    participacion:'Soporte documental y operativo',
+    permisos:['Carga documental','Consulta limitada'],
+    recibe:'Recibe del Abogado los documentos aportados por el Cliente para su organización y clasificación.',
+    revisa:'Revisa extractos, contratos y certificaciones para clasificarlos y verificar que estén completos.',
+    gestiona:'Gestiona el cargue, la clasificación y el checklist documental dentro del expediente.',
+    decisiones:'Decide qué documentos están completos y cuáles deben reportarse como pendientes o inconsistentes.',
+    resultado:'Genera un checklist documental y una matriz probatoria organizada y actualizada.',
+    entrega:'Entrega la matriz probatoria actualizada y el checklist al Abogado.',
+    recibePosterior:'Recibe validaciones o correcciones del Abogado sobre la matriz entregada.',
+    cuandoIA:'Usa el Agente Probatorio para acelerar la clasificación de documentos y la detección de inconsistencias.',
+    agentes:[{id:'probatorio', funcion:'Indica qué documentos revisar, qué datos extraer, cómo clasificar pruebas y qué inconsistencias reportar.', comoAyuda:'Acelera la clasificación documental y reduce el riesgo de omitir evidencia relevante.'}]
+  },
+  {
+    id:'socio', order:5, icon:'shield', code:'SO',
+    nombre:'Socio', detalle:'Socio administrador / Socio director',
+    resumen:'Supervisa el caso a nivel estratégico y aprueba las decisiones de mayor impacto.',
+    participacion:'Supervisión y aprobación estratégica',
+    permisos:['Lectura global','Reportes','Aprobaciones'],
+    recibe:'Recibe el informe consolidado del caso remitido por el Director y el Abogado, con la matriz probatoria y la teoría del caso.',
+    revisa:'Revisa el resumen ejecutivo, los riesgos estratégicos y las decisiones pendientes de nivel directivo.',
+    gestiona:'Gestiona la aprobación estratégica del caso y la eventual comunicación de alto nivel con el cliente.',
+    decisiones:'Aprueba la estrategia procesal definitiva o solicita una nueva revisión.',
+    resultado:'Genera la aprobación formal registrada en el expediente, con trazabilidad completa.',
+    entrega:'Entrega la autorización formal al Director para ejecutar la estrategia aprobada, cerrando el ciclo del flujo.',
+    recibePosterior:'Recibe reportes de seguimiento sobre la ejecución de lo aprobado.',
+    cuandoIA:'Consulta al Agente de Recomendación Procesal antes de aprobar, para validar que no existan riesgos estratégicos no advertidos.',
+    agentes:[{id:'recomendacion', funcion:'Resume el estado penal del caso, expone decisiones de alto impacto, compara rutas procesales y advierte riesgos estratégicos antes de aprobar acciones.', comoAyuda:'Le permite al Socio aprobar con una lectura ejecutiva del caso, sin revisar todo el expediente.'}]
+  },
+];
+const roleById = id => ROLES.find(r=>r.id===id);
+const FLOW_ORDER = ['director','abogado','cliente','administrativo','socio'];
+function nextRoleId(id){ const i=FLOW_ORDER.indexOf(id); return i>=0 && i<FLOW_ORDER.length-1 ? FLOW_ORDER[i+1] : null; }
+
+const HECHOS = { H1:'Ejecución del contrato', H2:'Manejo de recursos', H3:'Conocimiento directivo', H4:'Estructura societaria' };
+
+const CASES = [
+  {
+    id:'CP-2026-0143', nombre:'Constructora Andina S.A.S.', tipo:'Peculado y lavado de activos · Contrato de obra pública No. 045-2024',
+    estado:'En curso', responsableRole:'abogado', fecha:'2026-09-22', ultimaActividad:'Hoy', progreso:62,
+    matriz:[
+      {ev:'Contrato de obra pública No. 045-2024', tipo:'Documental', pretende:'Acreditar la existencia y condiciones del contrato suscrito con el municipio de Sabaneta.', hecho:'H1', fuente:'Secretaría de Infraestructura - Alcaldía de Sabaneta', estado:'verificada', relev:'alta', resp:'administrativo', obs:'Copia auténtica aportada por el cliente.'},
+      {ev:'Extractos bancarios cuenta empresarial (ene–jun 2025)', tipo:'Documental financiera', pretende:'Establecer la trazabilidad de los desembolsos girados por el contrato.', hecho:'H2', fuente:'Banco de Occidente', estado:'revision', relev:'alta', resp:'abogado', obs:'Pendiente de conciliar con la facturación del contrato.'},
+      {ev:'Declaración del interventor de obra', tipo:'Testimonial', pretende:'Contrastar la ejecución real de la obra frente a lo facturado.', hecho:'H1', fuente:'Interventoría externa', estado:'pendiente', relev:'media', resp:'administrativo', obs:'Requiere autorización previa del cliente para el contacto.'},
+      {ev:'Informe pericial contable preliminar', tipo:'Pericial', pretende:'Determinar si existió apropiación de recursos públicos del contrato.', hecho:'H2', fuente:'Perito contable independiente', estado:'verificada', relev:'alta', resp:'administrativo', obs:'Incorporado tras análisis con Agente Probatorio, revisado y aprobado por el Abogado.'},
+      {ev:'Correos internos de la constructora (ene–mar 2025)', tipo:'Documental digital', pretende:'Determinar el conocimiento previo de los directivos sobre presuntas irregularidades.', hecho:'H3', fuente:'Cliente (aportado voluntariamente)', estado:'verificada', relev:'media', resp:'cliente', obs:'Sujeto a reserva por confidencialidad.'},
+      {ev:'Certificación de movimientos societarios', tipo:'Documental', pretende:'Establecer la estructura societaria y posibles terceros vinculados.', hecho:'H4', fuente:'Cámara de Comercio', estado:'pendiente', relev:'media', resp:'director', obs:'Solicitada al cliente, en espera de cargue en el portal.'},
+    ]
+  },
+  {
+    id:'CP-2026-0098', nombre:'Sociedad Minera del Cauca', tipo:'Presunto lavado de activos · Título minero No. 12-2023',
+    estado:'En revisión técnica', responsableRole:'director', fecha:'2026-08-10', ultimaActividad:'Hace 3 días', progreso:40,
+    matriz:[
+      {ev:'Contrato de exploración minera No. 12-2023', tipo:'Documental', pretende:'Acreditar el título minero y sus condiciones.', hecho:'H1', fuente:'Agencia Nacional de Minería', estado:'verificada', relev:'alta', resp:'director', obs:'Aportado en la etapa de vinculación.'},
+      {ev:'Reporte de operaciones sospechosas (ROS)', tipo:'Documental financiera', pretende:'Determinar el origen de los recursos reportados.', hecho:'H2', fuente:'UIAF', estado:'revision', relev:'alta', resp:'abogado', obs:'En análisis por el equipo jurídico.'},
+    ]
+  },
+  {
+    id:'CP-2026-0071', nombre:'Grupo Empresarial Ferretero S.A.', tipo:'Corrupción privada · Cierre de caso',
+    estado:'Cerrado / Aprobado', responsableRole:'socio', fecha:'2026-06-02', ultimaActividad:'Hace 3 semanas', progreso:100,
+    matriz:[
+      {ev:'Actas de junta directiva 2024', tipo:'Documental', pretende:'Establecer conocimiento de directivos sobre pagos irregulares.', hecho:'H3', fuente:'Secretaría general de la empresa', estado:'verificada', relev:'alta', resp:'administrativo', obs:'Clasificadas y validadas.'},
+      {ev:'Informe pericial financiero definitivo', tipo:'Pericial', pretende:'Cuantificar el beneficio económico irregular.', hecho:'H2', fuente:'Perito financiero', estado:'verificada', relev:'alta', resp:'abogado', obs:'Aprobado por el Socio.'},
+      {ev:'Resumen ejecutivo de cierre', tipo:'Documental', pretende:'Consolidar la decisión final del caso.', hecho:'H4', fuente:'Dirección jurídica', estado:'verificada', relev:'media', resp:'socio', obs:'Caso aprobado y cerrado.'},
+    ]
+  },
+];
+const caseById = id => CASES.find(c=>c.id===id);
+
+/* canned deep-analysis templates (agentId_roleId) reused for "analizar_caso" / "analizar_matriz" */
+const DEEP_TEMPLATES = {
+  gestion_director:{ resumen:'Bandeja de coordinación del caso {CASE}: avance general {PROG}%. Se identifican tareas críticas y posibles bloqueos probatorios que requieren tu atención.', hallazgos:['Hay evidencia en estado "En revisión" o "Pendiente de recaudo" que puede afectar el cronograma.','El Abogado reporta avances que deben validarse antes del siguiente comité de caso.'], recomendacion:'Prioriza la resolución de los bloqueos probatorios y confirma la asignación de responsables antes del próximo corte de seguimiento.' },
+  gestion_abogado:{ resumen:'Los hechos documentados en el expediente de {CASE} permiten construir una teoría preliminar del caso, sujeta a validación de la evidencia pendiente.', hallazgos:['La documentación contractual respalda parcialmente la línea de defensa.','Persisten inconsistencias entre la evidencia financiera y la documental que deben conciliarse.'], recomendacion:'Solicita al Administrativo la conciliación de la evidencia pendiente antes de fijar la teoría definitiva del caso.' },
+  probatorio_abogado:{ resumen:'Estado de la matriz probatoria de {CASE} desde la perspectiva de validación jurídica: {VER} de {TOTAL} evidencias verificadas.', hallazgos:['Existen evidencias de relevancia alta aún en revisión.','El Administrativo debe confirmar la clasificación de los documentos recientes.'], recomendacion:'Valida las evidencias marcadas como "Verificada" antes de incorporarlas formalmente a la teoría del caso.' },
+  probatorio_administrativo:{ resumen:'Checklist probatorio de {CASE}: {VER} de {TOTAL} evidencias verificadas, {PEND} pendientes de recaudo o revisión.', hallazgos:['Se detectaron inconsistencias entre montos documentados que deben escalarse al Abogado.','Hay evidencia pendiente de cargue por parte del Cliente.'], recomendacion:'Escala al Abogado las inconsistencias detectadas y reitera al Cliente los documentos pendientes.' },
+  probatorio_cliente:{ resumen:'Resumen para el cliente sobre {CASE}: parte de la documentación solicitada ya fue incorporada al expediente.', hallazgos:['Algunos documentos solicitados siguen pendientes de cargue.','La información interna del caso permanece reservada para tu perfil.'], recomendacion:'Carga los documentos pendientes en el portal seguro para agilizar el análisis del equipo jurídico.' },
+  recomendacion_socio:{ resumen:'El caso {CASE} presenta un avance del {PROG}%. Se identifican riesgos estratégicos que conviene revisar antes de aprobar la siguiente actuación.', hallazgos:['La línea de defensa depende de evidencia que aún está en proceso de verificación.','Existen decisiones de alto impacto pendientes de tu aprobación.'], recomendacion:'Autoriza continuar solo si la evidencia crítica ha sido verificada; de lo contrario, solicita una nueva revisión al Director.' },
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentRoleId = 'abogado';
+let currentCaseId = 'CP-2026-0143';
+let currentView = 'agentes';
+let toastTimer;
+let activeChatAgentId = null; // agente activo embebido en el Chat AI (no modal)
+const CHAT_SESSIONS = {}; // key: agentId_roleId_caseId -> [{who:'user'|'agent', text, html}]
+
+function currentCase(){ return caseById(currentCaseId); }
+function currentRole(){ return roleById(currentRoleId); }
+
+/* ============================================================
+   ICON SLOTS (static chrome)
+   ============================================================ */
+setSlot('icon-slot-search', I('search')+'<span>Buscar en el caso</span>');
+setSlot('icon-slot-agentes', I('chip')+'<span>Agentes</span>');
+setSlot('icon-slot-casos', I('folder')+'<span>Casos activos</span>');
+setSlot('icon-slot-faq', I('help')+'<span>Preguntas frecuentes</span>');
+setSlot('icon-slot-config', I('gear')+'<span>Configuración</span>');
+setSlot('icon-slot-ayuda', I('lifebuoy')+'<span>Ayuda</span>');
+setSlot('icon-slot-chev1', I('chevDown'));
+setSlot('icon-slot-chev2', I('chevDown'));
+setSlot('icon-slot-rschev', I('chevDown'));
+setSlot('icon-slot-tbsearch', I('search'));
+setSlot('icon-slot-tbbell', I('bell'));
+setSlot('icon-slot-paperclip', I('paperclip'));
+setSlot('icon-slot-link', I('link'));
+setSlot('icon-slot-wand', I('wand'));
+document.getElementById('promptSendBtn').innerHTML = I('up');
+
+/* ============================================================
+   SIDEBAR NAV
+   ============================================================ */
+document.querySelectorAll('.sb-nav li[data-view]').forEach(li=>{
+  li.addEventListener('click', ()=>{
+    document.querySelectorAll('.sb-nav li[data-view]').forEach(x=>x.classList.remove('active'));
+    li.classList.add('active');
+    showView(li.dataset.view);
+  });
+});
+document.querySelectorAll('[data-view-btn]').forEach(b=>b.addEventListener('click',()=>{
+  showView(b.dataset.viewBtn);
+  document.querySelectorAll('.sb-nav li[data-view]').forEach(x=>x.classList.toggle('active', x.dataset.view===b.dataset.viewBtn));
+}));
+
+function showView(name){
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(name==='casos'){ backToCasosList(); }
+}
+
+/* ============================================================
+   TOP CASE CHIP
+   ============================================================ */
+function renderCaseChip(){
+  const c = currentCase();
+  document.getElementById('topCaseChip').innerHTML = `<span class="dot"></span>Caso <b>${c.id}</b> · ${c.estado}`;
+}
+document.getElementById('topCaseChip').addEventListener('click', ()=>{ showView('casos'); document.querySelectorAll('.sb-nav li[data-view]').forEach(x=>x.classList.toggle('active', x.dataset.view==='casos')); });
+
+/* ============================================================
+   ROLE SWITCHER
+   ============================================================ */
+const roleMenu = document.getElementById('roleMenu');
+const roleMenuList = document.getElementById('roleMenuList');
+function buildRoleMenu(){
+  roleMenuList.innerHTML = '';
+  ROLES.slice().sort((a,b)=>a.order-b.order).forEach(r=>{
+    const b = document.createElement('button');
+    b.className = r.id===currentRoleId ? 'active' : '';
+    b.innerHTML = `<span class="rm-av">${r.code}</span><span><b style="display:block;">${r.nombre}</b><span class="rm-desc">${r.participacion}</span></span>${r.id===currentRoleId ? '<span class="rm-check">'+I('check')+'</span>' : ''}`;
+    b.addEventListener('click', ()=>{ setRole(r.id); roleMenu.classList.remove('open'); });
+    roleMenuList.appendChild(b);
+  });
+}
+document.getElementById('roleSwitchBtn').addEventListener('click', (e)=>{ e.stopPropagation(); buildRoleMenu(); roleMenu.classList.toggle('open'); });
+document.addEventListener('click', (e)=>{ if(!roleMenu.contains(e.target) && e.target.id!=='roleSwitchBtn' && !document.getElementById('roleSwitchBtn').contains(e.target)) roleMenu.classList.remove('open'); });
+
+function setRole(id){
+  currentRoleId = id;
+  const r = currentRole();
+  document.getElementById('roleAvatar').textContent = r.code;
+  document.getElementById('roleLabelName').textContent = r.nombre;
+  if(activeChatAgentId && !r.agentes.some(a=>a.id===activeChatAgentId)){
+    activeChatAgentId = null;
+  }
+  renderAgentesView();
+  buildFlow();
+  buildStepper();
+  showToast('Rol activo: ' + r.nombre);
+}
+
+/* ============================================================
+   AGENTES VIEW
+   ============================================================ */
+function renderAgentesView(){
+  const r = currentRole();
+  const c = currentCase();
+  const heroTitle = document.getElementById('agHeroTitle');
+  const heroSub = document.getElementById('agHeroSub');
+  const avatar = document.getElementById('heroAgentAvatar');
+  const backBtn = document.getElementById('heroBackBtn');
+  const ctxLine = document.getElementById('chatContextLine');
+  const thread = document.getElementById('chatThread');
+  const input = document.getElementById('promptInput');
+  const inputWrap = document.getElementById('chatInputWrap');
+
+  if(activeChatAgentId){
+    // el cuadro principal (promptbox) SE CONVIERTE en el Chat AI del agente activo;
+    // el chat ocupa la parte inferior de la interfaz: el hilo crece con la página y
+    // el campo de entrada queda acoplado (sticky) al fondo mientras se conversa.
+    const meta = AGENTS[activeChatAgentId];
+    heroTitle.textContent = meta.nombre;
+    heroSub.textContent = meta.especialidad;
+    avatar.innerHTML = I('bot').replace('style="stroke:#fff;"','');
+    avatar.style.display = 'flex';
+    backBtn.style.display = 'inline-flex';
+    ctxLine.style.display = 'block';
+    ctxLine.innerHTML = `<b>${c.id}</b> · ${c.nombre} — ${c.tipo}. Consultando como <b>${r.nombre}</b>. ${MODULE_DOC.aprobacion}`;
+    input.placeholder = `Escribe tu pregunta para ${meta.nombre}...`;
+    thread.style.display = 'flex';
+    inputWrap.classList.add('docked');
+    if(!CHAT_SESSIONS[sessionKey()]){
+      CHAT_SESSIONS[sessionKey()] = [{who:'agent', html:`<b>${meta.nombre}</b>Hola, soy el ${meta.nombre}. Trabajo con ${r.nombre} en el caso ${c.id}. Elige una sugerencia o escribe tu pregunta.`}];
+    }
+    renderThread();
+  } else {
+    heroTitle.textContent = `Hola, ${r.nombre}. Estos son tus AI Agents`;
+    heroSub.textContent = `Módulo 02 · ${r.detalle}. Los agentes que ves a continuación corresponden únicamente a las responsabilidades de este rol.`;
+    avatar.style.display = 'none';
+    backBtn.style.display = 'none';
+    ctxLine.style.display = 'none';
+    input.placeholder = 'Escribe tu pregunta y se enviará al agente principal de tu rol...';
+    thread.style.display = 'none';
+    thread.innerHTML = '';
+    inputWrap.classList.remove('docked');
+  }
+
+  document.getElementById('agSectionTitle').textContent = `Agentes para ${r.nombre}`;
+  document.getElementById('suggestionPillsHolder').style.display = activeChatAgentId ? 'none' : 'flex';
+  renderSuggestionsMain();
+
+  // mientras hay un agente activo en el Chat AI, se oculta toda la lista de agentes:
+  // solo queda el chat. Al volver, reaparecen todos los agentes del rol.
+  const listSection = document.getElementById('agentsListSection');
+  listSection.style.display = activeChatAgentId ? 'none' : 'block';
+
+  const grid = document.getElementById('agentGrid');
+  grid.innerHTML = '';
+  if(!activeChatAgentId){
+    r.agentes.forEach(a=>{
+      const meta = AGENTS[a.id];
+      const card = document.createElement('div');
+      card.className = 'role-card';
+      card.innerHTML = `
+        <div class="r-top">
+          <div class="role-icon">${I('bot').replace('style="stroke:#fff;"','')}</div>
+          <span class="role-count">${r.nombre}</span>
+        </div>
+        <h3>${meta.nombre}</h3>
+        <div class="fi-actions">
+          <button class="btn primary sm" data-usar="${a.id}">Usar agente</button>
+          <button class="btn sm" data-doc="${a.id}">Ver cómo funciona</button>
+        </div>
+      `;
+      card.querySelector('[data-doc]').addEventListener('click', ()=> openAgentDoc(a.id));
+      card.querySelector('[data-usar]').addEventListener('click', ()=> activateAgent(a.id));
+      grid.appendChild(card);
+    });
+  }
+}
+
+/* sugerencias del cuadro principal: agente activo si hay chat abierto, si no el agente
+   principal del rol (dependen de rol + agente + caso + etapa) */
+function renderSuggestionsMain(){
+  const r = currentRole();
+  const c = currentCase();
+  const agentId = activeChatAgentId || r.agentes[0].id;
+  const pillsHolder = document.getElementById('suggestionPillsHolder');
+  pillsHolder.innerHTML = '';
+  getSuggestions(agentId, currentRoleId, c).forEach(s=>{
+    const p = document.createElement('button');
+    p.className = 'role-pill';
+    p.textContent = s.label;
+    p.addEventListener('click', ()=>{
+      if(!activeChatAgentId) activateAgent(agentId, s.id);
+      else runSuggestion(s);
+    });
+    pillsHolder.appendChild(p);
+  });
+}
+
+/* el cuadro principal ES el Chat AI: si no hay agente activo, el primer envío activa
+   el agente principal del rol; si ya hay uno activo, el mensaje se envía a ese mismo chat */
+function handleMainSend(){
+  const val = document.getElementById('promptInput').value.trim();
+  if(!val) return;
+  if(!activeChatAgentId){
+    activateAgent(currentRole().agentes[0].id);
+    setTimeout(()=> sendUserMessage(val), 150);
+  } else {
+    sendUserMessage(val);
+  }
+}
+document.getElementById('promptSendBtn').addEventListener('click', handleMainSend);
+document.getElementById('promptInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    handleMainSend();
+  }
+});
+document.getElementById('heroBackBtn').addEventListener('click', deactivateAgent);
+
+/* ============================================================
+   AGENT DOCUMENTATION DRAWER
+   ============================================================ */
+const drawer = document.getElementById('agentDrawer');
+const drawerOverlay = document.getElementById('drawerOverlay');
+let drawerAgentId = null;
+
+function rolesForAgent(agentId){
+  return ROLES.filter(r=> r.agentes.some(a=>a.id===agentId));
+}
+
+function openAgentDoc(agentId){
+  drawerAgentId = agentId;
+  const meta = AGENTS[agentId];
+  const roles = rolesForAgent(agentId);
+  document.getElementById('drawerIcon').innerHTML = I('bot').replace('style="stroke:#fff;"','');
+  document.getElementById('drawerName').textContent = meta.nombre;
+  document.getElementById('drawerSpec').textContent = meta.especialidad;
+  document.getElementById('docQueEs').textContent = meta.queEs;
+  document.getElementById('docObjetivo').textContent = MODULE_DOC.objetivo;
+  document.getElementById('docResponsabilidades').innerHTML = MODULE_DOC.responsabilidades.map(x=>`<li>${x}</li>`).join('');
+  document.getElementById('docTareas').innerHTML = meta.tareas.map(x=>`<li>${x}</li>`).join('');
+  document.getElementById('docRoles').innerHTML = roles.map(r=>`<span class="perm-tag">${r.nombre}</span>`).join('');
+  document.getElementById('docInfoAnaliza').innerHTML = meta.infoTrabaja.map(x=>`<li>${x}</li>`).join('');
+  document.getElementById('docInfoGenera').innerHTML = MODULE_DOC.infoGenera.map(x=>`<li>${x}</li>`).join('');
+  document.getElementById('docHerramientas').innerHTML = MODULE_DOC.herramientas.map(x=>`<span class="perm-tag">${x}</span>`).join('');
+  document.getElementById('docSugerir').innerHTML = getSuggestions(agentId, currentRoleId, currentCase()).map(x=>`<li>${x.label}</li>`).join('');
+  document.getElementById('docAprobacion').textContent = MODULE_DOC.aprobacion;
+  document.getElementById('docFlujo').innerHTML = roles.map(r=>`<li><b>${r.nombre}:</b> recibe → ${r.recibe} Entrega → ${r.entrega}</li>`).join('');
+  document.getElementById('docCuando').innerHTML = roles.map(r=>`<li><b>${r.nombre}:</b> ${r.cuandoIA}</li>`).join('');
+  document.getElementById('docEjemplos').innerHTML = getSuggestions(agentId, currentRoleId, currentCase())
+    .map(s=>`<li>"${s.label}"</li>`).join('');
+  document.getElementById('docMatrizRel').textContent = agentId==='probatorio'
+    ? 'Es el agente que trabaja de forma directa con la Matriz Probatoria: revisa, clasifica y valida evidencia, y puede señalar inconsistencias o vacíos antes de que el usuario los apruebe.'
+    : 'Consulta la Matriz Probatoria como referencia para sus recomendaciones, pero no la modifica directamente; cualquier cambio a la matriz lo realiza el usuario.';
+  drawer.classList.add('open');
+  drawerOverlay.classList.add('show');
+}
+function closeDrawer(){ drawer.classList.remove('open'); drawerOverlay.classList.remove('show'); }
+document.getElementById('drawerCloseBtn').addEventListener('click', closeDrawer);
+drawerOverlay.addEventListener('click', closeDrawer);
+document.getElementById('drawerOpenChat').addEventListener('click', ()=>{ closeDrawer(); activateAgent(drawerAgentId); });
+
+/* ============================================================
+   STEPPER + FLOW LIST (por caso)
+   ============================================================ */
+const stepperHolder = document.getElementById('stepperHolder');
+const flowList = document.getElementById('flowList');
+
+function buildStepper(){
+  const c = currentCase();
+  const currentOrder = roleById(c.responsableRole).order;
+  stepperHolder.innerHTML = '';
+  ROLES.slice().sort((a,b)=>a.order-b.order).forEach(r=>{
+    const st = document.createElement('div');
+    const cls = c.progreso>=100 ? 'done' : (r.order < currentOrder ? 'done' : r.order===currentOrder ? 'current' : '');
+    st.className = 'step ' + cls;
+    st.innerHTML = `<div class="sc">${cls==='done' ? I('check').replace('class="icon"','class="icon" style="width:14px;height:14px;stroke:#fff;"') : r.order}</div><div class="sl">${r.nombre}</div>`;
+    stepperHolder.appendChild(st);
+  });
+}
+
+function buildFlow(){
+  const c = currentCase();
+  const currentOrder = roleById(c.responsableRole).order;
+  document.getElementById('cdFlowNote').textContent = c.progreso>=100
+    ? 'Este caso completó el flujo entre los cinco roles y fue aprobado por el Socio.'
+    : `El caso inicia con el Director y actualmente se encuentra en el rol: ${roleById(c.responsableRole).nombre}.`;
+  flowList.innerHTML = '';
+  ROLES.slice().sort((a,b)=>a.order-b.order).forEach(r=>{
+    const status = c.progreso>=100 ? 'ok' : (r.order < currentOrder ? 'ok' : r.order===currentOrder ? 'now' : 'pending');
+    const label = status==='ok' ? 'Completado' : status==='now' ? 'En curso' : 'Pendiente';
+    const item = document.createElement('div');
+    item.className = 'flow-item' + (status==='now' ? ' current' : '');
+    item.innerHTML = `
+      <div class="fi-head">
+        <div class="fi-role">
+          <div class="fi-num">${r.order}</div>
+          <div><h4>${r.nombre}</h4><span>${r.participacion}</span></div>
+        </div>
+        <span class="badge ${status}">${label}</span>
+      </div>
+      <div class="fi-grid">
+        <div class="fi-block"><h5>Recibe / de quién</h5><p>${r.recibe}</p></div>
+        <div class="fi-block"><h5>Revisa</h5><p>${r.revisa}</p></div>
+        <div class="fi-block"><h5>Gestiona manualmente</h5><p>${r.gestiona}</p></div>
+        <div class="fi-block"><h5>Decisiones</h5><p>${r.decisiones}</p></div>
+        <div class="fi-block"><h5>Resultado / entrega a</h5><p>${r.resultado} ${r.entrega}</p></div>
+        <div class="fi-block"><h5>Recibe posteriormente</h5><p>${r.recibePosterior}</p></div>
+      </div>
+      <div class="fi-actions">
+        <button class="btn sm" data-open-role="${r.id}">Ver agente(s) de este rol</button>
+      </div>
+    `;
+    item.querySelector('[data-open-role]').addEventListener('click', ()=>{
+      setRole(r.id);
+      document.querySelectorAll('.sb-nav li[data-view]').forEach(x=>x.classList.toggle('active', x.dataset.view==='agentes'));
+      showView('agentes');
+    });
+    flowList.appendChild(item);
+  });
+}
+
+/* ============================================================
+   CASOS ACTIVOS
+   ============================================================ */
+const casosBody = document.getElementById('casosBody');
+function buildCasosList(){
+  casosBody.innerHTML = '';
+  CASES.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.className='clickable';
+    tr.innerHTML = `
+      <td style="font-weight:700;">${c.id}</td>
+      <td style="max-width:260px;"><b>${c.nombre}</b><br><span style="color:var(--text-muted);font-size:11.8px;">${c.tipo}</span></td>
+      <td><span class="pill-state ${c.progreso>=100?'verificada':(c.estado.includes('curso')?'revision':'pendiente')}">${c.estado}</span></td>
+      <td>${roleById(c.responsableRole).nombre}</td>
+      <td>${c.fecha}</td>
+      <td>${c.ultimaActividad}</td>
+      <td><div class="case-progress"><div class="bar"><i style="width:${c.progreso}%;"></i></div><span style="font-size:11.5px;color:var(--text-muted);">${c.progreso}%</span></div></td>
+      <td>${c.matriz.length}</td>
+    `;
+    tr.addEventListener('click', ()=> openCaseDetail(c.id));
+    casosBody.appendChild(tr);
+  });
+}
+
+function openCaseDetail(caseId){
+  currentCaseId = caseId;
+  renderCaseChip();
+  document.getElementById('casosListWrap').style.display='none';
+  document.getElementById('casoDetailWrap').style.display='block';
+  const c = currentCase();
+  document.getElementById('cdTitle').textContent = `${c.id} · ${c.nombre}`;
+  document.getElementById('cdSub').textContent = c.tipo + ' · Responsable actual: ' + roleById(c.responsableRole).nombre;
+  buildStepper();
+  buildFlow();
+  buildMatriz();
+}
+document.getElementById('btnBackCasos').addEventListener('click', backToCasosList);
+function backToCasosList(){
+  document.getElementById('casoDetailWrap').style.display='none';
+  document.getElementById('casosListWrap').style.display='block';
+  buildCasosList();
+}
+
+/* ============================================================
+   MATRIZ PROBATORIA (por caso)
+   ============================================================ */
+const matrizBody = document.getElementById('matrizBody');
+const matrizCount = document.getElementById('matrizCount');
+function stateLabel(s){ return {verificada:'Verificada', revision:'En revisión', pendiente:'Pendiente de recaudo'}[s]; }
+function relevLabel(s){ return {alta:'Alta', media:'Media', baja:'Baja'}[s]; }
+
+function buildMatriz(){
+  const c = currentCase();
+  matrizBody.innerHTML = '';
+  c.matriz.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600;max-width:180px;">${row.ev}</td>
+      <td>${row.tipo}</td>
+      <td style="max-width:220px;">${row.pretende}</td>
+      <td><span class="hecho-tag">${row.hecho} · ${HECHOS[row.hecho]}</span></td>
+      <td>${row.fuente}</td>
+      <td><span class="pill-state ${row.estado}">${stateLabel(row.estado)}</span></td>
+      <td><span class="pill-relev ${row.relev}">${relevLabel(row.relev)}</span></td>
+      <td>${roleById(row.resp).nombre}</td>
+      <td style="max-width:200px;color:var(--text-muted);">${row.obs}</td>
+    `;
+    matrizBody.appendChild(tr);
+  });
+  matrizCount.textContent = c.matriz.length + ' elementos registrados';
+}
+
+/* matriz modal */
+const matrizModal = document.getElementById('matrizModal');
+const fResponsable = document.getElementById('fResponsable');
+ROLES.slice().sort((a,b)=>a.order-b.order).forEach(r=>{
+  const o = document.createElement('option'); o.value=r.id; o.textContent=r.nombre; fResponsable.appendChild(o);
+});
+document.getElementById('btnAddEvidencia').addEventListener('click', ()=> matrizModal.classList.add('show'));
+document.getElementById('matrizCloseBtn').addEventListener('click', ()=> matrizModal.classList.remove('show'));
+document.getElementById('matrizCancelBtn').addEventListener('click', ()=> matrizModal.classList.remove('show'));
+document.getElementById('matrizSaveBtn').addEventListener('click', ()=>{
+  const ev = document.getElementById('fEvidencia').value.trim();
+  if(!ev){ showToast('Ingresa el nombre de la evidencia.'); return; }
+  currentCase().matriz.unshift({
+    ev, tipo:document.getElementById('fTipo').value,
+    pretende:document.getElementById('fPretende').value || '—',
+    hecho:document.getElementById('fHecho').value,
+    fuente:document.getElementById('fFuente').value || '—',
+    estado:document.getElementById('fEstado').value,
+    relev:document.getElementById('fRelev').value,
+    resp:document.getElementById('fResponsable').value,
+    obs:document.getElementById('fObs').value || '—',
+  });
+  buildMatriz();
+  matrizModal.classList.remove('show');
+  ['fEvidencia','fPretende','fFuente','fObs'].forEach(id=>document.getElementById(id).value='');
+  showToast('Evidencia agregada y vinculada al caso.');
+});
+
+/* ============================================================
+   CHAT AI — es el MISMO cuadro principal (promptbox) de arriba.
+   Al activar un agente, ese cuadro se convierte en su chat:
+   historial + sugerencias + campo de conversación, sin modal
+   ni pantalla nueva. Funcional y contextual por rol + agente + caso.
+   ============================================================ */
+const chatThread = document.getElementById('chatThread');
+
+function sessionKey(){ return `${activeChatAgentId}_${currentRoleId}_${currentCaseId}`; }
+
+/* "Usar agente": oculta su tarjeta y lo activa dentro del Chat AI principal */
+function activateAgent(agentId, autoSuggestionId){
+  activeChatAgentId = agentId;
+  document.querySelectorAll('.sb-nav li[data-view]').forEach(x=>x.classList.toggle('active', x.dataset.view==='agentes'));
+  showView('agentes');
+  renderAgentesView();
+  window.scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('promptInput').focus();
+  if(autoSuggestionId){
+    const s = getSuggestions(agentId, currentRoleId, currentCase()).find(x=>x.id===autoSuggestionId);
+    if(s) setTimeout(()=> runSuggestion(s), 200);
+  }
+}
+
+/* "Volver a agentes": el agente reaparece en su tarjeta; su historial se conserva */
+function deactivateAgent(){
+  activeChatAgentId = null;
+  renderAgentesView();
+}
+
+function renderThread(){
+  chatThread.innerHTML = '';
+  (CHAT_SESSIONS[sessionKey()]||[]).forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'msg ' + (m.who==='user' ? 'user' : 'agent');
+    div.innerHTML = m.html;
+    chatThread.appendChild(div);
+  });
+  renderFollowups();
+  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+}
+
+/* sugerencias del agente activo, mostradas como "Seguimientos" dentro del propio
+   hilo de la conversación (para iniciar rápidamente la siguiente interacción) */
+function renderFollowups(){
+  const session = CHAT_SESSIONS[sessionKey()] || [];
+  const last = session[session.length-1];
+  if(!activeChatAgentId || !last || last.who!=='agent') return;
+  const box = document.createElement('div');
+  box.className = 'chat-followups';
+  box.innerHTML = `<div class="fu-label">Seguimientos</div>`;
+  getSuggestions(activeChatAgentId, currentRoleId, currentCase()).forEach(s=>{
+    const b = document.createElement('button');
+    b.className = 'followup-item';
+    b.textContent = s.label;
+    b.addEventListener('click', ()=> runSuggestion(s));
+    box.appendChild(b);
+  });
+  chatThread.appendChild(box);
+}
+
+function sendUserMessage(text){
+  CHAT_SESSIONS[sessionKey()].push({who:'user', html:text});
+  document.getElementById('promptInput').value='';
+  renderThread();
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const html = buildReply(activeChatAgentId, currentRoleId, currentCase(), null, text);
+    CHAT_SESSIONS[sessionKey()].push({who:'agent', html});
+    renderThread();
+  }, 900 + Math.random()*500);
+}
+
+function runSuggestion(s){
+  CHAT_SESSIONS[sessionKey()].push({who:'user', html:s.label});
+  renderThread();
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const html = buildReply(activeChatAgentId, currentRoleId, currentCase(), s.id, s.label);
+    CHAT_SESSIONS[sessionKey()].push({who:'agent', html});
+    renderThread();
+  }, 900 + Math.random()*500);
+}
+
+function showTyping(){
+  const div = document.createElement('div');
+  div.className = 'msg agent typing-msg';
+  div.id = 'typingBubble';
+  div.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+  chatThread.appendChild(div);
+  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+}
+function hideTyping(){ const t=document.getElementById('typingBubble'); if(t) t.remove(); }
+
+/* ---- reply engine ---- */
+function fmt(str, vars){ return str.replace(/\{(\w+)\}/g, (_,k)=> vars[k] !== undefined ? vars[k] : ''); }
+
+function matrizStats(c){
+  const total = c.matriz.length;
+  const ver = c.matriz.filter(m=>m.estado==='verificada').length;
+  const rev = c.matriz.filter(m=>m.estado==='revision').length;
+  const pend = c.matriz.filter(m=>m.estado==='pendiente').length;
+  return {total, ver, rev, pend};
+}
+
+function buildReply(agentId, roleId, c, suggestionId, rawText){
+  const meta = AGENTS[agentId];
+  const role = roleById(roleId);
+  const stats = matrizStats(c);
+  const tag = `<b>${meta.nombre}</b>`;
+
+  // route free text to a suggestion type via keywords when no explicit suggestionId
+  let type = suggestionId;
+  if(!type){
+    const t = rawText.toLowerCase();
+    if(t.includes('matriz')) type='analizar_matriz';
+    else if(t.includes('evidenc')) type='revisar_evidencia';
+    else if(t.includes('falta') || t.includes('pendient')) type='info_faltante';
+    else if(t.includes('resum') || t.includes('document')) type='resumir_docs';
+    else if(t.includes('siguiente') || t.includes('entreg')) type='preparar_siguiente';
+    else if(t.includes('estado') || t.includes('avance') || t.includes('progreso')) type='estado_caso';
+    else if(t.includes('analiza') || t.includes('caso')) type='analizar_caso';
+  }
+
+  switch(type){
+    case 'analizar_caso': {
+      const key = agentId+'_'+roleId;
+      const d = DEEP_TEMPLATES[key];
+      if(d){
+        const vars = {CASE:c.id, PROG:c.progreso, VER:stats.ver, TOTAL:stats.total, PEND:stats.pend};
+        return `${tag}${fmt(d.resumen, vars)}<ul>${d.hallazgos.map(h=>`<li>${fmt(h,vars)}</li>`).join('')}</ul><p style="margin-top:8px;"><b>Recomendación:</b> ${fmt(d.recomendacion,vars)}</p><span class="conf-tag">Confianza ${78 + (stats.ver*3)}%</span>`;
+      }
+      return `${tag}He analizado el caso ${c.id} (${c.nombre}) desde la perspectiva de ${role.nombre}. Progreso general: ${c.progreso}%. Evidencias verificadas: ${stats.ver} de ${stats.total}.`;
+    }
+    case 'analizar_matriz':
+    case 'revisar_evidencia': {
+      const rows = c.matriz.slice(0,4).map(m=>`<li><b>${m.ev}</b> — ${stateLabel(m.estado)} (${relevLabel(m.relev)}), responsable: ${roleById(m.resp).nombre}</li>`).join('');
+      return `${tag}Matriz probatoria de ${c.id}: ${stats.total} elementos — ${stats.ver} verificadas, ${stats.rev} en revisión, ${stats.pend} pendientes.<ul>${rows}</ul>`;
+    }
+    case 'info_faltante': {
+      const faltan = c.matriz.filter(m=>m.estado!=='verificada');
+      if(faltan.length===0) return `${tag}No hay vacíos probatorios activos en ${c.id}: toda la evidencia registrada está verificada.`;
+      return `${tag}Información pendiente en ${c.id}:<ul>${faltan.map(m=>`<li><b>${m.ev}</b> — ${stateLabel(m.estado)}. ${m.obs}</li>`).join('')}</ul>`;
+    }
+    case 'resumir_docs': {
+      return `${tag}Documentos del caso ${c.id}:<ul>${c.matriz.map(m=>`<li>${m.ev} (${m.tipo})</li>`).join('')}</ul>Todos vinculados a los hechos H1–H4 del caso.`;
+    }
+    case 'preparar_siguiente': {
+      const nxt = nextRoleId(roleId);
+      if(!nxt) return `${tag}${role.nombre} es el último rol del flujo en este módulo; no hay un siguiente rol al cual preparar entrega. Corresponde registrar la aprobación final.`;
+      const nr = roleById(nxt);
+      return `${tag}Para entregar a ${nr.nombre}, prepara: ${role.resultado} ${role.entrega}<p style="margin-top:6px;"><b>${nr.nombre} recibirá:</b> ${nr.recibe}</p>`;
+    }
+    case 'estado_caso': {
+      return `${tag}Estado de ${c.id}: <b>${c.estado}</b>. Progreso: ${c.progreso}%. Responsable actual: ${roleById(c.responsableRole).nombre}. Última actividad: ${c.ultimaActividad}.`;
+    }
+    default:
+      return `${tag}Como ${meta.nombre} (${meta.especialidad}) trabajando con ${role.nombre}, aún no tengo una respuesta específica para "${rawText}" dentro de ${c.id}. Prueba con una sugerencia o pregunta por evidencia, matriz probatoria, estado del caso o el siguiente rol.`;
+  }
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+const FAQ = [
+  {cat:'Uso de AI Agents', q:'¿Cómo sé qué AI Agent usar?', a:'La plataforma muestra únicamente los agentes que corresponden a tu rol activo. Selecciona tu rol en el avatar superior y entra a "Agentes" para ver los disponibles.'},
+  {cat:'Uso de AI Agents', q:'¿El AI Agent puede tomar decisiones por mí?', a:'No. La IA no puede cerrar, aprobar ni emitir conceptos definitivos sin revisión humana. Todo resultado debe ser revisado y aprobado por el rol correspondiente antes de incorporarse al expediente.'},
+  {cat:'Gestión de casos', q:'¿Cómo abro un caso activo?', a:'Ve a "Casos activos" en el menú lateral, selecciona un caso de la lista y se abrirá su información, flujo entre roles y matriz probatoria.'},
+  {cat:'Gestión de casos', q:'¿Quién puede crear un caso nuevo?', a:'El Director jurídico / Coordinador de caso es quien recibe el requerimiento inicial y crea el caso en la plataforma.'},
+  {cat:'Matriz Probatoria', q:'¿Qué es la Matriz Probatoria?', a:'Es el registro central de evidencia del caso: documento, tipo de prueba, hecho que pretende demostrar, fuente, estado, relevancia, responsable y observaciones.'},
+  {cat:'Matriz Probatoria', q:'¿Cómo agrego una evidencia?', a:'Dentro del detalle de un caso, usa el botón "+ Agregar evidencia" para registrar un nuevo elemento en la matriz probatoria.'},
+  {cat:'Evidencias', q:'¿Qué significan los estados de evidencia?', a:'Verificada: confirmada y lista para uso jurídico. En revisión: en proceso de validación. Pendiente de recaudo: aún no ha sido obtenida o cargada.'},
+  {cat:'Documentos', q:'¿Quién carga los documentos del cliente?', a:'El Cliente carga los documentos solicitados en el portal seguro; el Administrativo los clasifica y organiza dentro de la matriz probatoria.'},
+  {cat:'Flujo entre roles', q:'¿Cómo pasa el caso entre los roles?', a:'El flujo avanza así: Director (inicia) → Abogado (analiza) → Cliente (aporta documentos) → Administrativo (organiza evidencia) → Socio (aprueba). Puedes verlo en el detalle de cada caso.'},
+  {cat:'Uso del Chat AI', q:'¿El Chat AI recuerda el caso y el rol?', a:'Sí. Cada Chat AI mantiene el contexto del caso activo y del rol seleccionado durante toda la conversación.'},
+  {cat:'Uso del Chat AI', q:'¿Qué son las sugerencias del chat?', a:'Son preguntas y acciones rápidas relacionadas con tu rol, el agente y el caso actual, como "Analizar el caso" o "Revisar la evidencia".'},
+  {cat:'Acciones del agente', q:'¿Qué puede sugerir cada agente?', a:'Cada agente sugiere únicamente lo definido en su documentación (sección "Qué puede sugerir"), visible desde "Ver cómo funciona" en su tarjeta.'},
+  {cat:'Uso de AI Agents', q:'¿Qué es un AI Agent?', a:'Es un asistente de inteligencia artificial del Módulo 02 que analiza información del caso y propone hallazgos, resúmenes o recomendaciones, siempre bajo supervisión humana.'},
+  {cat:'Uso de AI Agents', q:'¿Cómo selecciono un agente?', a:'Entra a "Agentes", ubica la tarjeta del agente que corresponde a tu rol y haz clic en "Usar agente". El agente se activará dentro del mismo Chat AI.'},
+  {cat:'Uso de AI Agents', q:'¿Cómo sé qué agente utilizar?', a:'La plataforma muestra únicamente los agentes vinculados a tu rol activo. Si tienes dudas sobre cuál usar, consulta "Ver cómo funciona" en cada tarjeta antes de activarlo.'},
+  {cat:'Uso de AI Agents', q:'¿Qué diferencia existe entre los agentes?', a:'El Agente de Gestión de Casos Penales coordina el expediente y la teoría del caso; el Agente Probatorio clasifica y valida evidencia; el Agente de Recomendación Procesal da una lectura ejecutiva para aprobación del Socio.'},
+  {cat:'Uso del Chat AI', q:'¿Cómo funciona el Chat AI?', a:'Al activar un agente con "Usar agente", el chat aparece en la misma vista de Agentes, en la parte inferior. Muestra sugerencias, permite escribir preguntas y responde con el contexto del caso y del rol.'},
+  {cat:'Uso de AI Agents', q:'¿Qué información puede analizar un agente?', a:'Cada agente analiza únicamente la información definida en su documentación: documentos del expediente, matriz probatoria, evidencias y su estado, según corresponda.'},
+  {cat:'Uso de AI Agents', q:'¿Puede el agente modificar información del caso?', a:'No directamente. El agente propone hallazgos y recomendaciones; cualquier cambio en el caso o en la matriz probatoria lo realiza el usuario de forma manual.'},
+  {cat:'Acciones del agente', q:'¿Quién aprueba las recomendaciones del agente?', a:'El rol correspondiente al caso (Abogado, Director, Socio, según la etapa) revisa y aprueba antes de incorporar cualquier resultado de IA al expediente.'},
+  {cat:'Matriz Probatoria', q:'¿Cómo trabaja el agente con la Matriz Probatoria?', a:'El Agente Probatorio revisa, clasifica y valida evidencia dentro de la matriz. Los demás agentes la consultan como referencia, pero no la modifican directamente.'},
+  {cat:'Evidencias', q:'¿Cómo analiza evidencias?', a:'Usa la sugerencia "Revisar la evidencia" o "Analizar la Matriz Probatoria" en el Chat AI para obtener un resumen del estado, relevancia y responsable de cada evidencia del caso activo.'},
+  {cat:'Documentos', q:'¿Cómo utiliza los documentos del caso?', a:'Los agentes trabajan sobre los documentos ya registrados en la matriz probatoria del caso activo; usa "Resumir documentos" en el chat para obtener un listado rápido.'},
+  {cat:'Uso del Chat AI', q:'¿Cómo se mantiene el contexto del caso?', a:'El Chat AI siempre usa el caso activo (mostrado en el chip superior) y el rol seleccionado; ambos se muestran en el encabezado del chat mientras conversas con el agente.'},
+  {cat:'Flujo entre roles', q:'¿Qué ocurre cuando cambio de rol?', a:'Se actualizan automáticamente los agentes disponibles y las sugerencias. Si el agente activo también existe para el nuevo rol, el chat continúa; si no, regresas a la vista de tarjetas.'},
+  {cat:'Flujo entre roles', q:'¿Cómo se relacionan los agentes con los cinco roles?', a:'Cada rol accede solo a los agentes que corresponden a sus responsabilidades: Director y Abogado usan el Agente de Gestión de Casos Penales; Abogado, Administrativo y Cliente usan el Agente Probatorio; el Socio usa el Agente de Recomendación Procesal.'},
+  {cat:'Uso de AI Agents', q:'¿Cómo puedo revisar qué hace un agente antes de utilizarlo?', a:'Haz clic en "Ver cómo funciona" en la tarjeta del agente para abrir su documentación completa antes de activarlo con "Usar agente".'},
+  {cat:'Uso del Chat AI', q:'¿Cómo regreso a la vista de agentes?', a:'Usa el botón "← Volver a agentes" dentro del Chat AI activo. El agente vuelve a aparecer como tarjeta y su historial de conversación se conserva.'},
+  {cat:'Uso del Chat AI', q:'¿Qué puedo preguntarle al AI Agent?', a:'Puedes usar las sugerencias del chat o preguntar libremente por el estado del caso, la evidencia, la Matriz Probatoria, documentos pendientes o qué preparar para el siguiente rol.'},
+  {cat:'Acciones del agente', q:'¿Qué tareas requieren revisión humana?', a:'Todas. Ningún resultado de IA se cierra, aprueba o incorpora automáticamente al expediente; siempre requiere revisión del rol correspondiente.'},
+];
+function buildFaq(){
+  const list = document.getElementById('faqList');
+  list.innerHTML = '';
+  FAQ.forEach((f,i)=>{
+    const item = document.createElement('div');
+    item.className = 'flow-item faq-item';
+    item.innerHTML = `
+      <div class="faq-q">
+        <div><p class="faq-cat">${f.cat}</p><h4>${f.q}</h4></div>
+        <span class="faq-chev">${I('chevDown')}</span>
+      </div>
+      <div class="faq-a">${f.a}</div>
+    `;
+    item.addEventListener('click', ()=> item.classList.toggle('open'));
+    list.appendChild(item);
+  });
+}
+
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
+const CONFIG_GROUPS = [
+  {title:'Preferencias generales', rows:[
+    {label:'Modo compacto', desc:'Reduce el espaciado de las tarjetas y tablas.', on:false},
+    {label:'Guardar último rol usado', desc:'Recuerda el último rol seleccionado al volver a entrar.', on:true},
+  ]},
+  {title:'Notificaciones', rows:[
+    {label:'Alertas de vencimientos', desc:'Notifica sobre evidencia o tareas próximas a vencer.', on:true},
+    {label:'Resumen diario del caso', desc:'Envía un resumen del estado del caso cada día.', on:false},
+  ]},
+  {title:'Configuración del Chat AI', rows:[
+    {label:'Mostrar sugerencias automáticas', desc:'Muestra chips de preguntas sugeridas al abrir un agente.', on:true},
+    {label:'Requerir aprobación antes de incorporar resultados', desc:'Exige revisión manual antes de guardar un resultado de IA en el expediente.', on:true},
+  ]},
+  {title:'Información del usuario', rows:[
+    {label:'Perfil visible para el equipo', desc:'Comparte tu nombre y rol activo con el equipo del caso.', on:true},
+    {label:'Acceso multi-rol', desc:'Permite cambiar de rol desde el mismo usuario (uso de demostración).', on:true},
+  ]},
+];
+function buildConfig(){
+  const grid = document.getElementById('configGrid');
+  grid.innerHTML='';
+  CONFIG_GROUPS.forEach(g=>{
+    const card = document.createElement('div');
+    card.className='role-card';
+    card.innerHTML = `<h3 style="margin-bottom:4px;">${g.title}</h3>` + g.rows.map((r,idx)=>`
+      <div class="setting-row">
+        <div class="sr-label"><b>${r.label}</b><span>${r.desc}</span></div>
+        <button class="switch ${r.on?'on':''}" data-cfg="${g.title}-${idx}"><span class="knob"></span></button>
+      </div>
+    `).join('');
+    card.querySelectorAll('.switch').forEach(sw=>sw.addEventListener('click', ()=>{ sw.classList.toggle('on'); }));
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================
+   AYUDA
+   ============================================================ */
+const AYUDA = [
+  {icon:'chip', title:'Cómo utilizar los AI Agents', desc:'Selecciona tu rol en el avatar superior, entra a "Agentes" y verás únicamente los agentes de tu rol. Usa "Ver cómo funciona" para conocerlo o "Usar agente" para activarlo.'},
+  {icon:'folder', title:'Cómo seleccionar un caso', desc:'Ve a "Casos activos", revisa el listado con estado, responsable y progreso, y haz clic en un caso para abrir su flujo y matriz probatoria.'},
+  {icon:'bot', title:'Cómo utilizar el Chat AI', desc:'Al hacer clic en "Usar agente", la tarjeta se oculta y el Chat AI se activa en la misma vista de Agentes, abajo. Usa las sugerencias o escribe tu pregunta.'},
+  {icon:'help', title:'Preguntas frecuentes', desc:'Consulta la sección "Preguntas frecuentes" del menú lateral para respuestas rápidas sobre agentes, casos, evidencias y flujo entre roles.'},
+  {icon:'lifebuoy', title:'Guía rápida del módulo', desc:'El Módulo 02 gestiona casos penales con módulo probatorio: Director inicia, Abogado analiza, Cliente aporta, Administrativo organiza y Socio aprueba.'},
+  {icon:'shield', title:'Información de soporte', desc:'Para dudas adicionales sobre el Módulo 02, contacta al equipo de coordinación jurídica desde el menú "Soporte" en la barra superior.'},
+];
+function buildAyuda(){
+  const grid = document.getElementById('ayudaGrid');
+  grid.innerHTML='';
+  AYUDA.forEach(a=>{
+    const card = document.createElement('div');
+    card.className='role-card';
+    card.innerHTML = `<div class="r-top"><div class="role-icon">${I(a.icon)}</div></div><h3>${a.title}</h3><p>${a.desc}</p>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  setRole('abogado');
+  renderCaseChip();
+  buildCasosList();
+  buildFaq();
+  buildConfig();
+  buildAyuda();
+  showView('agentes');
+}
+init();
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.innerHTML = I('check').replace('class="icon"','class="icon" style="width:14px;height:14px;stroke:#fff;"') + '<span>'+msg+'</span>';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
