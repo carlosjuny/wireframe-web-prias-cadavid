@@ -256,13 +256,12 @@ function currentRole(){ return roleById(currentRoleId); }
 /* ============================================================
    ICON SLOTS (static chrome)
    ============================================================ */
-setSlot('icon-slot-search', I('search')+'<span>Buscar en el caso</span>');
 setSlot('icon-slot-modulos', I('grid')+'<span>Módulos</span>');
 setSlot('icon-slot-agentes', I('chip')+'<span>Agentes</span>');
 setSlot('icon-slot-casos', I('folder')+'<span>Casos Penales</span>');
 setSlot('icon-slot-config', I('gear')+'<span>Configuración</span>');
 setSlot('icon-slot-rschev', I('chevDown'));
-setSlot('icon-slot-tbsearch', I('search'));
+setSlot('icon-slot-tbsearch', I('search')+'<span>Buscar en el caso</span>');
 setSlot('icon-slot-tbbell', I('bell'));
 setSlot('icon-slot-paperclip', I('paperclip'));
 setSlot('icon-slot-link', I('link'));

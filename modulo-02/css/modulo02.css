@@ -57,11 +57,7 @@ svg{display:block;}
 .app.view-fill #view-ejecutiva.active #exBody{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;}
 
 /* ---------- sidebar ---------- */
-.sb-search{
-  display:flex;align-items:center;gap:8px;
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:8px 10px;color:var(--text-faint);font-size:13.5px;margin-bottom:14px;
-}
+.sb-brand{font-weight:600;font-size:15px;color:var(--text);padding:8px 6px;margin-bottom:14px;}
 .sb-nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;}
 .sb-nav li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);
   color:var(--text-muted);font-size:13.8px;font-weight:500;}
@@ -78,15 +74,21 @@ svg{display:block;}
 
 /* ---------- topbar ---------- */
 .topbar{
-  display:flex;align-items:center;justify-content:space-between;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
   padding:14px 28px;border-bottom:1px solid var(--border);background:var(--bg);
   position:sticky;top:0;z-index:30;
 }
 .tb-left{display:flex;align-items:center;gap:26px;}
-.brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:15px;}
+.tb-center{display:flex;justify-content:center;}
+.tb-search{
+  display:flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid var(--border);border-radius:999px;
+  padding:8px 14px;color:var(--text-faint);font-size:13.5px;width:280px;
+}
+.tb-search:hover{border-color:var(--border-strong);color:var(--text-muted);}
 .tb-menu{display:flex;align-items:center;gap:20px;}
 .tb-menu-item{display:flex;align-items:center;gap:4px;font-size:13.8px;color:var(--text-muted);font-weight:500;}
-.tb-right{display:flex;align-items:center;gap:14px;}
+.tb-right{display:flex;align-items:center;gap:14px;justify-self:end;}
 .tb-icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid transparent;display:flex;align-items:center;justify-content:center;color:var(--text-muted);background:none;}
 .tb-icon-btn:hover{background:#eeeeec;}
 .avatar{width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;}

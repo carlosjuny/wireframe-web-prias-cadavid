@@ -1733,7 +1733,6 @@ function initCasosPenales(){
   document.getElementById('btnAddEvidencia').addEventListener('click', prepararModalEvidencia);
 
   const focoBusqueda = ()=>{ goView('casos'); setTimeout(()=> document.getElementById('cpSearch')?.focus(), 50); };
-  document.getElementById('icon-slot-search').addEventListener('click', focoBusqueda);
   document.getElementById('icon-slot-tbsearch').addEventListener('click', focoBusqueda);
   document.getElementById('icon-slot-tbbell').addEventListener('click', ()=> goView('alertas'));
   document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeCpDrawer(); } });
